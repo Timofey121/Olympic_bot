@@ -1,7 +1,7 @@
 import asyncio
 
 from data.config import ADMINS
-# from handlers.users.notification import check
+from handlers.users.notification import check
 from loader import dp
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
@@ -12,13 +12,13 @@ async def on_startup(dispatcher):
     await on_startup_notify(dispatcher)
 
 
-# async def test(dispatcher):
-#     while True:
-#         try:
-#             await check(dispatcher)
-#         except:
-#             pass
-#         await asyncio.sleep(22400)
+async def test(dispatcher):
+    while True:
+        try:
+            await check(dispatcher)
+        except:
+            pass
+        await asyncio.sleep(22400)
 
 
 async def main():

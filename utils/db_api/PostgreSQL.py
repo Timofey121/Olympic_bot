@@ -5,7 +5,7 @@ import sqlite3
 def main():
     global con, cur
 
-    con = sqlite3.connect('../../additional_files/olimpic_bd')
+    con = sqlite3.connect('additional_files/olimpic_bd')
     cur = con.cursor()
 
 
@@ -74,6 +74,14 @@ async def update_blocked_users(telegram_id, blocked):
 async def select_blocked_users():
     main()
     cur.execute(f"SELECT * FROM registration WHERE blocked='Да'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def information_about_olympiads(subject):
+    main()
+    cur.execute(f"SELECT title, information FROM olympiads WHERE subject='{subject}'")
     rows = cur.fetchall()
     con.close()
     return rows
