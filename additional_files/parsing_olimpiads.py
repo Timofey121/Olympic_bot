@@ -15,7 +15,7 @@ from additional_files.dictionary import numbers, months
 
 def connection_to_bd(host, user, passwd, database):
     global connection, cur
-    connection = sqlite3.connect('additional_files/olimpic_bd')
+    connection = sqlite3.connect('olimpic_bd')
     cur = connection.cursor()
 
 
@@ -174,4 +174,5 @@ async def main():
         await asyncio.sleep(432000)
 
 
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())

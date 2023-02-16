@@ -9,12 +9,13 @@ from loader import dp
 from utils.db_api.PostgreSQL import subscriber_exists, add_user, count_users
 
 
-@dp.message_handler(Command("star"))
+@dp.message_handler(Command("start"))
 async def bot_start(message: types.Message):
     await message.answer(f"Привет, {message.from_user.full_name}!\n"
                          f"Бот создан для помощи ученикам, которые хотят поступить в ВУЗ благодаря олимпиадам. \n"
                          f"Бот предоставит информацию об олимпиадах по выбранным предметам и напомнит Вам о них "
-                         f"за 1 день! \n"
+                         f"за 1 день!"
+                         f"\n"
                          f"Для того чтобы продолжить нажмите МЕНЮ")
     try:
         if len(list(await subscriber_exists(telegram_id=str(message.from_user.id)))) == 0:

@@ -10,6 +10,5 @@ async def set_default_commands(dp):
             types.BotCommand("delete_notification", "Удаление уведомлений"),
             types.BotCommand("feedback", "Оставить отзыв"),
             types.BotCommand("technical_support", "Написать в тех поддержку!"),
-            types.BotCommand("help", "Вывести справку"),
         ]
     )
