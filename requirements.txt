@@ -1,0 +1,16 @@
+aiogram==2.21
+asyncpg==0.25.0
+beautifulsoup4==4.11.1
+chill==0.8.1
+environs==9.5.0
+heroku==0.1.4
+lxml==4.9.0
+pip-chill==1.0.1
+pymorphy2==0.9.1
+pymysql==1.0.2
+pyopenssl==22.0.0
+pysocks==1.7.1
+pyvirtualdisplay==3.0
+selenium==4.3.0
+webdriver-manager==3.8.3
+xvfbwrapper==0.2.9
