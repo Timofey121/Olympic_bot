@@ -20,6 +20,12 @@ keyboard_4 = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Отправить пользователям сообщение!")
         ],
+        [
+            KeyboardButton(text="Посмотреть все технические ошибки!")
+        ],
+        [
+            KeyboardButton(text="Удалить выполненные тех. ошибки!")
+        ],
         
     ],
     resize_keyboard=True  # размер кнопки(не огромный)

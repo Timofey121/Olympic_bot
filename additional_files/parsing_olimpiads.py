@@ -3,7 +3,7 @@ import asyncio
 import sqlite3
 
 import requests
-from aiogram.utils.markdown import hlink, hunderline
+from aiogram.utils.markdown import hlink, hunderline, hbold
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -15,13 +15,14 @@ from additional_files.dictionary import numbers, months
 
 def connection_to_bd(host, user, passwd, database):
     global connection, cur
-    connection = sqlite3.connect('olimpic_bd')
+    connection = sqlite3.connect('additional_files/olimpic_bd')
     cur = connection.cursor()
 
 
-async def add_subject(subject, title, information):
+async def add_subject(subject, title, information, start):
     connection_to_bd('host', 'user', 'passwd', 'database')
-    cur.execute(f"INSERT INTO olympiads (subject, title, information) VALUES ('{subject}', '{title}', '{information}')")
+    cur.execute(f"INSERT INTO olympiads (subject, title, information, start) VALUES ('{subject}', '{title}', "
+                f"'{information}', '{start}')")
     connection.commit()
     connection.close()
 
@@ -155,13 +156,16 @@ async def subject_to_bd():
                                             data_end = ''
 
                         information_about_olimpiad = (f"{hunderline(title)}.  \n"
-                                                      f"{step} \n"
-                                                      f"{data_start} {'--' * (len(data_end) != 0)} {data_end}  \n"
+                                                      f"Этап олимпиады - {hbold(step)} \n"
+                                                      f"{data_start.split(' - ')[0]} "
+                                                      f"{'--' * (len(data_end.split(' - ')[0]) != 0)} "
+                                                      f"{data_end.split(' - ')[0]}  \n"
                                                       f"Расписание можете посмотреть {hlink(title='ТУТ!', url=fg)}\n"
                                                       f"Сайт этой олимпиады Вы можете посмотреть"
                                                       f"{hlink(title='ТУТ!', url=href_olimp)}  \n")
 
-                        await add_subject(subject=subjects[i], title=title, information=information_about_olimpiad)
+                        await add_subject(subject=subjects[i], title=title, information=information_about_olimpiad,
+                                          start=data_start.strip().split(' - ')[0].replace('-До', ''))
                 except:
                     pass
         except Exception as ex:

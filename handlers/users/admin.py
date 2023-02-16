@@ -1,15 +1,21 @@
 from aiogram import types
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
+from aiogram.types import ReplyKeyboardRemove
 
+from data.config import ADMINS
+from keyboards.default.admin_commands import keyboard_4
 from loader import dp
+from states import Test
+from utils.db_api.PostgreSQL import select_all_users, select_data_olimp_use_id, count_users, select_blocked_users, \
+    update_blocked_users, subscriber_exists
 
 
 @dp.message_handler(Command("admin"))
 async def notification(message: types.Message):
-    pass
-    """if str(message.from_user.id) in ADMINS:
+    if str(message.from_user.id) in ADMINS:
         await message.answer('Выберите нужную команду (cм.ниже).', reply_markup=keyboard_4)
-        await Test.Q23.set()
+        await Test.Q_for_admin_1.set()
     else:
         text = ("ТАКОЙ КОМАНДЫ НЕТ!",
                 "Список команд: ",
@@ -26,7 +32,7 @@ async def notification(message: types.Message):
         await message.answer("\n".join(text))
 
 
-@dp.message_handler(state=Test.Q23)
+@dp.message_handler(state=Test.Q_for_admin_1)
 async def answer(message: types.Message, state: FSMContext):
     try:
         if message.text == "Показать уведомления пользователей!":
@@ -67,7 +73,7 @@ async def answer(message: types.Message, state: FSMContext):
                 c[t].append(f"Пользователь {dat[i][1]} -> ID = {dat[i][0]}")
             for i in range(len(c)):
                 await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
-            await Test.Q24.set()
+            await Test.Q_for_admin_2.set()
         elif message.text == "Разблокировать пользователя!":
             await message.answer(f"Введите id пользователя, которого хотите заблокировать",
                                  reply_markup=ReplyKeyboardRemove())
@@ -82,16 +88,16 @@ async def answer(message: types.Message, state: FSMContext):
                 c[t].append(f"Пользователь {dat[i][1]} -> ID = {dat[i][0]}")
             for i in range(len(c)):
                 await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
-            await Test.Q25.set()
+            await Test.Q_for_admin_3.set()
         elif message.text == "Отправить пользователям сообщение!":
             await message.answer(f"Введите сообщение для пользователей!", reply_markup=ReplyKeyboardRemove())
-            await Test.Q26.set()
+            await Test.Q_for_admin_4.set()
     except Exception as ex:
         print(ex)
         await state.finish()
 
 
-@dp.message_handler(state=Test.Q24)
+@dp.message_handler(state=Test.Q_for_admin_2)
 async def block(message: types.Message, state: FSMContext):
     try:
         await update_blocked_users(message.text, 'Да')
@@ -103,7 +109,7 @@ async def block(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-@dp.message_handler(state=Test.Q25)
+@dp.message_handler(state=Test.Q_for_admin_3)
 async def block(message: types.Message, state: FSMContext):
     try:
         await update_blocked_users(message.text, 'Нет')
@@ -114,9 +120,9 @@ async def block(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-@dp.message_handler(state=Test.Q26)
+@dp.message_handler(state=Test.Q_for_admin_4)
 async def block(message: types.Message, state: FSMContext):
     dat = list(await select_all_users())
     for i in range(len(dat)):
         await dp.bot.send_message(dat[i][0], message.text)
-    await state.finish()"""
+    await state.finish()

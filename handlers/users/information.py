@@ -21,7 +21,8 @@ async def info(message: types.Message):
     if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
         await message.answer(
             f"{hbold('Введите предмет(ы)')} олимпиады(у) которого вы хотите найти! (c большой буквы, через запятую)!\n \n"
-            'Список доступных предметов, по которым мы предоставляем информацию о олимпиадах:\n')
+            'Список доступных предметов, по которым мы предоставляем информацию о олимпиадах:\n',
+            reply_markup=ReplyKeyboardRemove())
         abc = []
         for i in range(len(lis_of_subjects)):
             abc.append(f"{i + 1}) {lis_of_subjects[i]}")

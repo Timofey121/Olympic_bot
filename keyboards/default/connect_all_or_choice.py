@@ -6,7 +6,7 @@ keyboard_1 = ReplyKeyboardMarkup(
             KeyboardButton(text="Подключить ко всем!")
         ],
         [
-            KeyboardButton(text="Подключить только к тем, которые помогут при поступлении в ВУЗ!")
+            KeyboardButton(text="Подключить к олимпиадам, входящим в РСОШ!")
         ]
     ],
     resize_keyboard=True  # размер кнопки(не огромный)

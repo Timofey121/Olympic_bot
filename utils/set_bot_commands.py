@@ -6,6 +6,7 @@ async def set_default_commands(dp):
         [
             types.BotCommand("start", "Запустить бота"),
             types.BotCommand("info", "Вывести информацию о нужной олимпиаде"),
+            types.BotCommand("check_notification", "Вывести список подключенных уведомлений"),
             types.BotCommand("notification", "Подключение уведомлений"),
             types.BotCommand("delete_notification", "Удаление уведомлений"),
             types.BotCommand("feedback", "Оставить отзыв"),

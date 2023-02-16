@@ -55,6 +55,14 @@ async def add_user_tech(telegram_id, help):
     con.close()
 
 
+async def add_notification_dates(telegram_id, data_olymp, subject, information):
+    main()
+    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information) "
+                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}')")
+    con.commit()
+    con.close()
+
+
 async def check_blocked(telegram_id):
     main()
     cur.execute(f"SELECT blocked FROM registration WHERE telegram_id='{telegram_id}'")
@@ -85,3 +93,51 @@ async def information_about_olympiads(subject):
     rows = cur.fetchall()
     con.close()
     return rows
+
+
+async def data_olympiads(subject):
+    main()
+    cur.execute(f"SELECT title, information, start FROM olympiads WHERE subject='{subject}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select_data_olimp_use_id(telegram_id):
+    main()
+    cur.execute(f"SELECT data_olimp FROM data_olimp WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select_data_sub_info(telegram_id):
+    main()
+    cur.execute(f"SELECT data_olymp, subject, information FROM notification_dates WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select_data_olimp_use_subject(subject):
+    main()
+    cur.execute(f"SELECT data_olymp FROM notification_dates WHERE subject='{subject}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def del_data_in_olimpic(telegram_id, subject):
+    main()
+    cur.execute(
+        f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND subject = '{subject}'")
+    con.commit()
+    con.close()
+
+
+async def del_notif_in_olimpic(telegram_id, information):
+    main()
+    cur.execute(
+        f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND information = '{information}'")
+    con.commit()
+    con.close()
