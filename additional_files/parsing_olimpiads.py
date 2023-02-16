@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from xvfbwrapper import Xvfb
 
-from additional_files.dictionary import numbers, months
+from additional_files.dictionary import numbers, months, months2
 
 
 def connection_to_bd(host, user, passwd, database):
@@ -42,16 +42,15 @@ async def subject_to_bd():
     for i in range(len(subjects)):
         try:
             await delete_subject(subject=subjects[i])
-            data_start = ''
             vdisplay = Xvfb()
             vdisplay.start()
+            data_start = ''
             options = webdriver.ChromeOptions()
             options.add_argument("--headless")
             options.add_argument('--no-sandbox')
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
             URL = f'https://olimpiada.ru/activities?type=any&subject%5B{numbers[subjects[i].strip().capitalize()]}' \
                   f'%5D=on&class=any&period_date=&period=week'
-
             driver.get(URL)
 
             for j in range(10):
@@ -75,19 +74,7 @@ async def subject_to_bd():
 
                     href_olimp = soup.find_all('div', 'contacts')[0].find('a', 'color').get('href')
 
-                    try:
-                        fg = "https://olimpiada.ru/" + soup.find('a', "blue ei-a").get(
-                            'href')
-                    except Exception:
-                        try:
-                            fg = "https://olimpiada.ru/" + soup.find('div', 'event_name').parent.get(
-                                'href')
-                        except Exception:
-                            try:
-                                fg = "https://olimpiada.ru/" + soup.find('span',
-                                                                         'events-info ei-link').text
-                            except Exception:
-                                fg = "Расписание олимпиады в этом году пока не известно"
+                    fg = "https://olimpiada.ru" + soup.find_all('tr', 'notgreyclass')[0].find("a").get('href')
 
                     if fg != 'Расписание олимпиады в этом году пока не известно':
                         url = fg
@@ -96,70 +83,22 @@ async def subject_to_bd():
                         soup = BeautifulSoup(src, "lxml")
 
                         step = soup.find('div', 'right').find('h1').text
+                        data_start1 = (soup.find('span', 'main_date red').text.strip().replace('\n', '')
+                                       .replace('20', ' 20').replace('!', '').replace('До', '')
+                                       ).strip().replace(' ', ' ').split('...')[0]
 
-                        try:
-                            data = soup.find('span', 'main_date grey').find('font').text
-                        except Exception:
-                            data = soup.find('span', 'main_date red').find('font').text
+                        for item2 in months2:
+                            if item2 in data_start1:
+                                data_start1 = data_start1.split(item2.strip())
+                                if len(data_start1[0]) == 0:
+                                    data_start1 = data_start1[1]
 
-                        try:
-                            data_start = soup.find_all('span', 'month fleft')[1].text + '-' + months[
-                                soup.find_all('span', 'month fleft')[0].text] + '-' + data.split('...')[0]
-                        except:
-                            try:
-                                data_start = soup.find_all('span', 'month fleft')[1].text + '-' + months[
-                                    soup.find_all('span', 'month fleft')[0].text] + '-' + data.split(' - ')[0]
-                            except:
-                                try:
-                                    data_start = soup.find_all('span', 'month')[2].text + '-' + months[
-                                        soup.find_all('span', 'month fleft')[0].text] + '-' + data.split('...')[0]
-                                except:
-                                    try:
-                                        data_start = soup.find_all('span', 'month')[1].text + '-' + months[
-                                            soup.find('span', 'main_date grey').find_all('td')[1].find('font').text]
-                                    except:
-                                        try:
-                                            data_start = soup.find_all('span', 'month')[2].text + '-' + months[
-                                                soup.find_all('span', 'month fleft')[0].text] + '-' + \
-                                                         data.split(' - ')[0]
-                                        except:
-                                            try:
-                                                data_start = soup.find_all('span', 'month')[1].text + '-' + months[
-                                                    soup.find_all('span', 'month')[0].text] + '-' + data
-                                            except:
-                                                pass
-
-                        try:
-                            data_end = soup.find_all('span', 'month fright')[1].text + '-' + months[
-                                soup.find_all('span', 'month fright')[0].text] + '-' + data.split('...')[1]
-                        except:
-                            try:
-                                data_end = soup.find_all('span', 'month fright')[1].text + '-' + months[
-                                    soup.find_all('span', 'month fright')[0].text] + '-' + data.split(' - ')[1]
-                            except:
-                                try:
-                                    data_end = soup.find_all('span', 'month')[1].text + '-' + \
-                                               months[soup.find('span', 'month fright').text] + '-' + \
-                                               str(int(soup.find('span', 'main_date grey').find_all('td')[1].find(
-                                                   'font').text) - 1)
-                                except:
-                                    try:
-                                        data_end = soup.find_all('span', 'month fleft')[1].text + '-' + months[
-                                            soup.find_all('span', 'month fleft')[0].text] + '-' + data.split(' - ')[
-                                                       1]
-                                    except:
-                                        try:
-                                            data_end = soup.find_all('span', 'month')[2].text + '-' + months[
-                                                soup.find_all('span', 'month fright')[0].text] + '-' + \
-                                                       data.split(' - ')[1]
-                                        except:
-                                            data_end = ''
+                                data_start = f"{data_start1[-1].strip()}-{months[item2.strip()]}-" \
+                                             f"{('0' * (2 - len(data_start1[0].strip())))}{data_start1[0].split('-')[0].strip()}"
 
                         information_about_olimpiad = (f"{hunderline(title)}.  \n"
                                                       f"Этап олимпиады - {hbold(step)} \n"
-                                                      f"{data_start.split(' - ')[0]} "
-                                                      f"{'--' * (len(data_end.split(' - ')[0]) != 0)} "
-                                                      f"{data_end.split(' - ')[0]}  \n"
+                                                      f"{data_start} \n"
                                                       f"Расписание можете посмотреть {hlink(title='ТУТ!', url=fg)}\n"
                                                       f"Сайт этой олимпиады Вы можете посмотреть"
                                                       f"{hlink(title='ТУТ!', url=href_olimp)}  \n")

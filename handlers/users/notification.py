@@ -1,3 +1,5 @@
+import datetime
+
 import pymorphy2
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -10,7 +12,7 @@ from additional_files.dictionary import lis_of_subjects, sub, subjects_rsosh
 from keyboards.default.connect_all_or_choice import keyboard_1
 from loader import dp
 from states import Test
-from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notification_dates
+from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notification_dates, select_data_infor_id
 
 
 @dp.message_handler(Command("notification"))
@@ -128,19 +130,17 @@ async def notification_4(message: types.Message, state: FSMContext):
 
 
 async def check(dp):
-    pass
-    # dat = list(await select_data_infor_id())
-    # for i in range(len(dat)):
-    #     data = datetime.datetime.strptime(''.join(dat[i][0].split("-")), '%Y%m%d').date()
-    #     now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
-    #
-    #     flag = ((data - now) <= datetime.timedelta(days=1))
-    #     flag1 = ((data - now) > datetime.timedelta(days=0))
-    #
-    #     await dp.bot.send_message(dat[i][2], f"{data}", f"{now}")
-    #     if flag and flag1:
-    #         await dp.bot.send_message(dat[i][2], f"Не забудьте, завтра у Вас:\n "
-    #                                              f"{dat[i][1]}")
+    dat = list(await select_data_infor_id())
+    for i in range(len(dat)):
+        data = datetime.datetime.strptime(''.join(dat[i][1].split("-")), '%Y%m%d').date()
+        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+
+        flag = ((data - now) <= datetime.timedelta(days=1))
+        flag1 = ((data - now) > datetime.timedelta(days=0))
+
+        if flag is True and flag1 is True:
+            await dp.bot.send_message(dat[i][0], f"Не забудьте\n"
+                                                 f"{dat[i][2]}")
 
 
 @dp.message_handler(Text(equals=["ДА!"]))
@@ -155,5 +155,3 @@ async def get_yes(message: types.Message):
                          "уведомления,просто напишите '/notification'", reply_markup=ReplyKeyboardRemove())
 
 
-async def check(dp):
-    pass

@@ -105,7 +105,7 @@ async def data_olympiads(subject):
 
 async def select_data_olimp_use_id(telegram_id):
     main()
-    cur.execute(f"SELECT data_olimp FROM data_olimp WHERE telegram_id='{telegram_id}'")
+    cur.execute(f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -141,3 +141,27 @@ async def del_notif_in_olimpic(telegram_id, information):
         f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND information = '{information}'")
     con.commit()
     con.close()
+
+
+async def del_tech(tag, help):
+    main()
+    cur.execute(
+        f"DELETE FROM technical_support WHERE telegram_id = '{tag}' AND help = '{help}'")
+    con.commit()
+    con.close()
+
+
+async def all_tech_failed():
+    main()
+    cur.execute(f"SELECT telegram_id, help FROM technical_support")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select_data_infor_id():
+    main()
+    cur.execute(f"SELECT telegram_id, data_olymp, information FROM notification_dates")
+    rows = cur.fetchall()
+    con.close()
+    return rows

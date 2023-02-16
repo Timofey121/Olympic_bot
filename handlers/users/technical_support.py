@@ -30,7 +30,7 @@ async def technical_support(message: types.Message):
 @dp.message_handler(state=Test.Q_for_tech_support)
 async def technical_support_1(message: types.Message, state: FSMContext):
     answer = message.text
-    await add_user_tech(telegram_id=str(message.from_user.id), help=answer)
+    await add_user_tech(telegram_id=str(message.from_user.username), help=answer)
     for admin in ADMINS:
         try:
             await dp.bot.send_message(admin,
