@@ -59,8 +59,6 @@ async def notification_4(message: types.Message, state: FSMContext):
         ht = sa[i]
         yt = sa[i]
         rt = sa[i]
-        dat = []
-        titles = []
         j = 0
         j += 1
         try:
