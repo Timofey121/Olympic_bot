@@ -1,12 +1,21 @@
 # -*- coding: utf8 -*-
-import sqlite3
+import MySQLdb
 
 
 def main():
     global con, cur
 
-    con = sqlite3.connect('additional_files/olimpic_bd')
-    cur = con.cursor()
+    # con = sqlite3.connect('additional_files/olimpic_bd')
+    # cur = con.cursor()
+
+    db = MySQLdb.connect(host="193.107.238.204",  # your host, usually localhost
+                         user="root",  # your username
+                         passwd="NWWSZJ650jy9XKh",  # your password
+                         db="olimpic_bot")
+
+    # you must create a Cursor object. It will let
+    #  you execute all the queries you need
+    cur = db.cursor()
 
 
 async def add_user(telegram_id, full_name, blocked, data_registration):

@@ -110,13 +110,3 @@ async def subject_to_bd():
         except Exception as ex:
             pass
 
-
-async def main():
-    while True:
-        await subject_to_bd()
-        print('!')
-        await asyncio.sleep(432000)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
