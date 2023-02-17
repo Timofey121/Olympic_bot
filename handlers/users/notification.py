@@ -99,10 +99,12 @@ async def notification_4(message: types.Message, state: FSMContext):
                     await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k], subject=rt,
                                                  information=information_olimpiads[k])
             if flag is False:
-                await message.answer("К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
+                await message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
                                      "возможно подключить после  утверждения графика проведения олимпиад "
-                                     "школьников и их уровней на 2021/22 учебный год по профилям! Ориентировочно "
-                                     "сентябрь-октябрь 2022г!")
+                                     f"школьников и их уровней "
+                                     f"{datetime.datetime.now().year}/{datetime.datetime.now().year + 1} на "
+                                     f"учебный год! Ориентировочно "
+                                     "сентябрь-октябрь!")
             else:
                 if message.text == "Подключить к олимпиадам, входящим в РСОШ!":
                     if e == 0:
@@ -116,11 +118,8 @@ async def notification_4(message: types.Message, state: FSMContext):
                     await message.answer(hbold(f"Подключены уведомления к {word_text_1.capitalize()}!"))
 
         except Exception as ex:
-            print(ex)
-            await message.answer(
-                "Проверьте правильность название города, предметов или класса! Если все правильно, "
-                "проверьте пожайлуйста синтаксис, или посмотрите примеры, которые есть под каждым "
-                "вопросом!")
+            await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
+                                 "напишите нам в поддержку и мы обязательно ее решим.")
 
     await state.finish()
 
@@ -131,11 +130,11 @@ async def check(dp):
         data = datetime.datetime.strptime(''.join(dat[i][1].split("-")), '%Y%m%d').date()
         now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
 
-        flag = ((data - now) <= datetime.timedelta(days=1))
+        flag = ((data - now) <= datetime.timedelta(days=2))
         flag1 = ((data - now) > datetime.timedelta(days=0))
 
         if flag is True and flag1 is True:
-            await dp.bot.send_message(dat[i][0], f"Не забудьте\n"
+            await dp.bot.send_message(dat[i][0], f"{hbold('НЕ ЗАБУДЬТЕ!')}\n\n"
                                                  f"{dat[i][2]}")
 
 
@@ -149,5 +148,3 @@ async def get_no(message: types.Message):
     await message.answer("Не подключив уведомления, есть шанс, что Вы потеряете свой ключ на "
                          "светлое будущее!!! В будущем, если Вы захотите подключить "
                          "уведомления,просто напишите '/notification'", reply_markup=ReplyKeyboardRemove())
-
-

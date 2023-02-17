@@ -91,7 +91,7 @@ async def answer(message: types.Message, state: FSMContext):
             c = [[]]
             t = 0
             if len(dat) == 0:
-                await message.answer(f'Заблокированных пользователей нет!')
+                await message.answer(f'Заблокированных пользователей нет!', reply_markup=ReplyKeyboardRemove())
                 await state.finish()
             else:
                 await message.answer(f"Полный список заблокированных пользователей:")
@@ -113,7 +113,7 @@ async def answer(message: types.Message, state: FSMContext):
             c = [[]]
             t = 0
             if len(dat) == 0:
-                await message.answer(f'Обращений пока не было.')
+                await message.answer(f'Обращений пока не было.', reply_markup=ReplyKeyboardRemove())
             else:
                 await message.answer(f"Полный список технических ошибок:")
                 for i in range(len(dat)):
@@ -131,7 +131,7 @@ async def answer(message: types.Message, state: FSMContext):
             a = 0
             t = 0
             if len(dat) == 0:
-                await message.answer(f"Обращений пока нет!")
+                await message.answer(f"Обращений пока нет!", reply_markup=ReplyKeyboardRemove())
                 await state.finish()
             else:
                 await message.answer(f"Полный список технических ошибок:")
@@ -152,7 +152,7 @@ async def answer(message: types.Message, state: FSMContext):
             a = 0
             t = 0
             if len(dat) == 0:
-                await message.answer(f"Отзывов пока нет!")
+                await message.answer(f"Отзывов пока нет!", reply_markup=ReplyKeyboardRemove())
             else:
                 await message.answer(f"Полный список отзывов:")
                 for i in range(len(dat)):
@@ -167,7 +167,7 @@ async def answer(message: types.Message, state: FSMContext):
 
         elif message.text == 'Отчистить БД от отзывов!':
             await del_feedback()
-            await message.answer('База данных отчищена!')
+            await message.answer('База данных отчищена!', reply_markup=ReplyKeyboardRemove())
             await state.finish()
 
 

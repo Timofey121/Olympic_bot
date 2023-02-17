@@ -18,7 +18,7 @@ async def test(dispatcher):
             await check(dispatcher)
         except Exception as ex:
             pass
-        await asyncio.sleep(22400)
+        await asyncio.sleep(43200)
 
 
 async def main():

@@ -10,11 +10,10 @@ async def bot_echo(message: types.Message):
             "/start - Начать диалог",
             "/info - Вывести информацию о нужной олимпиаде",
             "/notification - Подключение уведомлений",
-            "/check_notification - Подключение уведомлений",
+            "/check_notification - Просмотр подключенных уведомлений",
             "/delete_notification - Удаление уведомлений",
             "/feedback - Оставить отзыв",
             "/technical_support - Написать в тех поддержку!",
-            "/help - Получить справку",
             )
 
     await message.answer("\n".join(text))  # вывод текст - ответ на команду

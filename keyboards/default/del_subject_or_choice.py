@@ -6,7 +6,7 @@ keyboard_3 = ReplyKeyboardMarkup(
             KeyboardButton(text="Удалить уведомления определенного предмета!")
         ],
         [
-            KeyboardButton(text="Удалить выбранные уведомления!")
+            KeyboardButton(text="Удалить выбранные уведомления(по номеру)!")
         ]
     ],
     resize_keyboard=True  # размер кнопки(не огромный)

@@ -49,7 +49,7 @@ async def del_notification_1(message: types.Message, state: FSMContext):
             await message.answer(
                 "Перед тем, чтобы удалять уведомления, их надо подключить, для подключения уведомлений "
                 "напишите - '/notification'")
-    elif message.text == "Удалить выбранные уведомления!":
+    elif message.text == "Удалить выбранные уведомления(по номеру)!":
         await message.answer("Подождите немного! Начался поиск уведомлений!")
         a = list(await select_data_sub_info(telegram_id=message.from_user.id))
         c = [[]]
@@ -107,12 +107,10 @@ async def del_notification_2(message: types.Message, state: FSMContext):
                 else:
                     await message.answer(hbold(f"Уведомления не подключены к {word_text.capitalize()}"))
             except Exception as ex:
-                await message.answer(
-                    "Проверьте правильность название города, предметов или класса! Если все правильно, "
-                    "проверьте пожайлуйста синтаксис, или посмотрите примеры, которые есть под каждым "
-                    "вопросом!")
-                pass
-    elif answer1 == "Удалить выбранные уведомления!":
+                await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
+                                     "напишите нам в поддержку и мы обязательно ее решим.")
+
+    elif answer1 == "Удалить выбранные уведомления(по номеру)!":
         try:
             sa = message.text.split(",")
             for i in range(len(sa)):

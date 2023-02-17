@@ -9,8 +9,7 @@ from utils.db_api.PostgreSQL import subscriber_exists
 async def bot_help(message: types.Message):
     if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
         text = ("Об авторе в Телеграмме -> @My_IT_RESUME_bot",
-                "GitHub -> https://github.com/Timofey121/For_Work"
-                # "Об авторе: https://programmist-resume.herokuapp.com/",
+                "GitHub -> https://github.com/Timofey121"
                 )
         await message.answer("\n".join(text))
     else:
