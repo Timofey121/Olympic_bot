@@ -189,3 +189,11 @@ async def select_data_infor_id():
     rows = cur.fetchall()
     con.close()
     return rows
+
+
+async def subscribe_payment(telegram_id):
+    main()
+    cur.execute(f"SELECT data FROM payment WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
