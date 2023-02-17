@@ -24,7 +24,10 @@ async def feedback(message: types.Message):
 async def feedback_1(message: types.Message, state: FSMContext):
     if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
         answer = message.text
-        await add_user_feedback(feedback=answer, telegram_id=message.from_user.id)
+        name = message.from_user.id
+        if message.from_user.username is not None:
+            name = message.from_user.username
+        await add_user_feedback(feedback=answer, telegram_id=name)
         for admin in ADMINS:
             try:
                 await dp.bot.send_message(admin,

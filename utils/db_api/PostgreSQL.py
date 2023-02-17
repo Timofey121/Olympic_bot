@@ -33,6 +33,14 @@ async def subscriber_exists(telegram_id):
     return rows
 
 
+async def all_feedback():
+    main()
+    cur.execute(f"SELECT * FROM feedback")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
 async def count_users():
     main()
     cur.execute(f"SELECT COUNT(*) FROM registration WHERE blocked='Нет'")
@@ -111,6 +119,14 @@ async def select_data_olimp_use_id(telegram_id):
     return rows
 
 
+async def select_subjects_olimp_use_id(telegram_id):
+    main()
+    cur.execute(f"SELECT subject FROM notification_dates WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
 async def select_data_sub_info(telegram_id):
     main()
     cur.execute(f"SELECT data_olymp, subject, information FROM notification_dates WHERE telegram_id='{telegram_id}'")
@@ -131,6 +147,14 @@ async def del_data_in_olimpic(telegram_id, subject):
     main()
     cur.execute(
         f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND subject = '{subject}'")
+    con.commit()
+    con.close()
+
+
+async def del_feedback():
+    main()
+    cur.execute(
+        f"DELETE FROM feedback")
     con.commit()
     con.close()
 

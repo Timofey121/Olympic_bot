@@ -114,6 +114,7 @@ async def subject_to_bd():
 async def main():
     while True:
         await subject_to_bd()
+        print('!')
         await asyncio.sleep(432000)
 
 

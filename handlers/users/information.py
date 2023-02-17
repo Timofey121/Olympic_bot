@@ -37,7 +37,6 @@ async def info(message: types.Message):
 
 @dp.message_handler(state=Test.Q_for_info_1)
 async def info_3(message: types.Message, state: FSMContext):
-    global word_text, z, e, i
     answer_2 = message.text
     await state.update_data(answer2=answer_2)
 
@@ -118,8 +117,7 @@ async def info_4(message: types.Message, state: FSMContext):
                           "сложности при поступлении в ВУЗ. Поэтому мы предлагаем Вам, подключить уведомления на "
                           "разные предметы, хотите подключить уведомления?"), reply_markup=keyboard)
 
-        except Exception as ex:
-            print(ex)
+        except:
             await message.answer("Проверьте правильность название предмета! Если все правильно, "
                                  "проверьте синтаксис, или посмотрите примеры, которые есть под "
                                  "вопросами!")

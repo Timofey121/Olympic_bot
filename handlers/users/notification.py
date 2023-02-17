@@ -19,7 +19,8 @@ from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notif
 async def notification(message: types.Message):
     if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
         await message.answer(
-            f"{hbold('Введите предмет(ы)')} информацию о олимпиаде(ах) Вы хотите знать(C большой буквы, через запятую)!\n \n"
+            f"{hbold('Введите предмет(ы)')} информацию о олимпиаде(ах) Вы хотите знать"
+            f"(C большой буквы, через запятую)!\n \n"
             'Список доступных предметов, по которым мы предоставляем информацию о олимпиадах:\n',
             reply_markup=ReplyKeyboardRemove())
         abc = []
@@ -36,7 +37,6 @@ async def notification(message: types.Message):
 
 @dp.message_handler(state=Test.Q_for_notification)
 async def notification_3(message: types.Message, state: FSMContext):
-    global dat, all, sa, titles, word_text, z, e, i
     answer_6 = message.text
     await state.update_data(answer6=answer_6)
 
@@ -47,7 +47,6 @@ async def notification_3(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Test.Q_for_notification_2)
 async def notification_4(message: types.Message, state: FSMContext):
-    global dat, all, titles, answer7, frt
     data = await state.get_data()
     answer6 = data.get("answer6")
     answer7 = message.from_user.id
@@ -124,7 +123,6 @@ async def notification_4(message: types.Message, state: FSMContext):
                 "Проверьте правильность название города, предметов или класса! Если все правильно, "
                 "проверьте пожайлуйста синтаксис, или посмотрите примеры, которые есть под каждым "
                 "вопросом!")
-            break
 
     await state.finish()
 
@@ -149,7 +147,7 @@ async def get_yes(message: types.Message):
 
 
 @dp.message_handler(Text(equals=["НЕТ!"]))
-async def get_yes(message: types.Message):
+async def get_no(message: types.Message):
     await message.answer("Не подключив уведомления, есть шанс, что Вы потеряете свой ключ на "
                          "светлое будущее!!! В будущем, если Вы захотите подключить "
                          "уведомления,просто напишите '/notification'", reply_markup=ReplyKeyboardRemove())

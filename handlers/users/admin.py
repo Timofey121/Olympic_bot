@@ -9,7 +9,8 @@ from keyboards.default.admin_commands import keyboard_4
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import select_all_users, select_data_olimp_use_id, count_users, select_blocked_users, \
-    update_blocked_users, subscriber_exists, all_tech_failed, del_tech
+    update_blocked_users, subscriber_exists, all_tech_failed, del_tech, all_feedback, del_feedback, \
+    select_subjects_olimp_use_id
 
 
 @dp.message_handler(Command("admin"))
@@ -39,9 +40,13 @@ async def answer(message: types.Message, state: FSMContext):
         if message.text == "Показать уведомления пользователей!":
             dat = list(await select_all_users())
             for i in range(len(dat)):
+                g = []
+                for item in (list(set(list(await select_subjects_olimp_use_id(dat[i][0]))))):
+                    g.append(item[0])
                 await message.answer(
                     f"У пользователя {dat[i][1]} подключено {len(await select_data_olimp_use_id(dat[i][0]))} "
-                    f"уведомления к олимпиадам.", reply_markup=ReplyKeyboardRemove())
+                    f"уведомления к олимпиадам. По предметам: {' '.join(g)}",
+                    reply_markup=ReplyKeyboardRemove())
             await state.finish()
 
         elif message.text == "Показать полный список пользователей!":
@@ -83,17 +88,21 @@ async def answer(message: types.Message, state: FSMContext):
             await message.answer(f"Введите id пользователя, которого хотите заблокировать",
                                  reply_markup=ReplyKeyboardRemove())
             dat = list(await select_blocked_users())
-            await message.answer(f"Полный список заблокированных пользователей:")
             c = [[]]
             t = 0
-            for i in range(len(dat)):
-                if len(str("\n".join(c[t]))) + len(str(f"Пользователь {dat[i][1]} -> ID = {dat[i][0]}")) > 4096:
-                    t += 1
-                    c.append([])
-                c[t].append(f"Пользователь {dat[i][1]} -> ID = {dat[i][0]}")
-            for i in range(len(c)):
-                await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
-            await Test.Q_for_admin_3.set()
+            if len(dat) == 0:
+                await message.answer(f'Заблокированных пользователей нет!')
+                await state.finish()
+            else:
+                await message.answer(f"Полный список заблокированных пользователей:")
+                for i in range(len(dat)):
+                    if len(str("\n".join(c[t]))) + len(str(f"Пользователь {dat[i][1]} -> ID = {dat[i][0]}")) > 4096:
+                        t += 1
+                        c.append([])
+                    c[t].append(f"Пользователь {dat[i][1]} -> ID = {dat[i][0]}")
+                for i in range(len(c)):
+                    await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
+                await Test.Q_for_admin_3.set()
 
         elif message.text == "Отправить пользователям сообщение!":
             await message.answer(f"Введите сообщение для пользователей!", reply_markup=ReplyKeyboardRemove())
@@ -103,32 +112,63 @@ async def answer(message: types.Message, state: FSMContext):
             dat = list(await all_tech_failed())
             c = [[]]
             t = 0
-            await message.answer(f"Полный список технических ошибок:")
-            for i in range(len(dat)):
-                if len(str(f"Пользователь @{dat[i][0]} \nОбращение:\n {hbold(dat[i][1])}\n")) > 4096:
-                    t += 1
-                    c.append([])
-                c[t].append(f"Пользователь @{dat[i][0]} \nОбращение:\n  {hbold(dat[i][1])}\n")
-            for i in range(len(c)):
-                await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
+            if len(dat) == 0:
+                await message.answer(f'Обращений пока не было.')
+            else:
+                await message.answer(f"Полный список технических ошибок:")
+                for i in range(len(dat)):
+                    if len(str(f"Пользователь @{dat[i][0]} \nОбращение:\n {hbold(dat[i][1])}\n")) > 4096:
+                        t += 1
+                        c.append([])
+                    c[t].append(f"Пользователь @{dat[i][0]} \nОбращение:\n  {hbold(dat[i][1])}\n")
+                for i in range(len(c)):
+                    await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
+            await state.finish()
 
         elif message.text == "Удалить выполненные тех. ошибки!":
             dat = list(await all_tech_failed())
             c = [[]]
             a = 0
             t = 0
-            await message.answer(f"Полный список технических ошибок:")
-            for i in range(len(dat)):
-                a += 1
-                if len(str(f"{a}) Пользователь @{dat[i][0]} \nОбращение:\n {hbold(dat[i][1])}\n")) > 4096:
-                    t += 1
-                    c.append([])
-                c[t].append(f"{a}) Пользователь @{dat[i][0]} \nОбращение:\n  {hbold(dat[i][1])}\n")
-            for i in range(len(c)):
-                await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
-            await message.answer(f"Введите номер обращения, которое нужно удалить.")
-            await Test.Q_for_admin_5.set()
+            if len(dat) == 0:
+                await message.answer(f"Обращений пока нет!")
+                await state.finish()
+            else:
+                await message.answer(f"Полный список технических ошибок:")
+                for i in range(len(dat)):
+                    a += 1
+                    if len(str(f"{a}) Пользователь @{dat[i][0]} \nОбращение:\n {hbold(dat[i][1])}\n")) > 4096:
+                        t += 1
+                        c.append([])
+                    c[t].append(f"{a}) Пользователь @{dat[i][0]} \nОбращение:\n  {hbold(dat[i][1])}\n")
+                for i in range(len(c)):
+                    await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
+                await message.answer(f"Введите номер обращения, которое нужно удалить.")
+                await Test.Q_for_admin_5.set()
 
+        elif message.text == 'Посмотреть все отзывы!':
+            dat = list(await all_feedback())
+            c = [[]]
+            a = 0
+            t = 0
+            if len(dat) == 0:
+                await message.answer(f"Отзывов пока нет!")
+            else:
+                await message.answer(f"Полный список отзывов:")
+                for i in range(len(dat)):
+                    a += 1
+                    if len(str(f"{a}) Пользователь @{dat[i][0]} \nЕго отзыв:\n {hbold(dat[i][1])}\n")) > 4096:
+                        t += 1
+                        c.append([])
+                    c[t].append(f"{a}) Пользователь @{dat[i][0]} \nЕго отзыв:\n {hbold(dat[i][1])}\n")
+                for i in range(len(c)):
+                    await message.answer("\n".join(c[i]), reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+
+        elif message.text == 'Отчистить БД от отзывов!':
+            await del_feedback()
+            await message.answer('База данных отчищена!')
+            await state.finish()
 
 
     except Exception as ex:
@@ -142,6 +182,7 @@ async def block1(message: types.Message, state: FSMContext):
     a, b = dat[int(message.text) - 1]
     await del_tech(a, b)
     await message.answer(f"Техническая ошибка под номером {message.text} - удалена.")
+    await state.finish()
 
 
 @dp.message_handler(state=Test.Q_for_admin_2)
