@@ -10,7 +10,7 @@ from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import select_all_users, select_data_olimp_use_id, count_users, select_blocked_users, \
     update_blocked_users, subscriber_exists, all_tech_failed, del_tech, all_feedback, del_feedback, \
-    select_subjects_olimp_use_id
+    select_subjects_olimp_use_id, count_olympiads
 
 
 @dp.message_handler(Command("admin"))
@@ -171,12 +171,11 @@ async def answer(message: types.Message, state: FSMContext):
             await state.finish()
 
         elif message.text == 'Количество олимпиад в Базе Данных!':
-            await message.answer(f'Перезаписалась БД с олимпиадами.\nВ Бд {list(await count_users())[0][0]} '
-                                 f'строк!\nВремя выполнения: {execution_time}')
-
+            f = open('additional_files/log.txt').read()
+            await message.answer(f'Перезаписалась БД с олимпиадами.\nВ Бд {list(await count_olympiads())[0][0]} '
+                                 f'строк!\nВремя выполнения: {f}')
 
     except Exception as ex:
-        print(ex)
         await state.finish()
 
 

@@ -11,12 +11,12 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from xvfbwrapper import Xvfb
 
-from dictionary import numbers, months, months2
+from additional_files.dictionary import numbers, months, months2
 
 
 def connection_to_bd(host, user, passwd, database):
     global connection, cur
-    connection = sqlite3.connect('../additional_files/olimpic_bd')
+    connection = sqlite3.connect('additional_files/olimpic_bd')
     cur = connection.cursor()
 
 
@@ -119,13 +119,12 @@ async def subject_to_bd():
 
 async def main():
     global execution_time
-    execution_time = 0
     while True:
         start = datetime.datetime.now()
         await subject_to_bd()
-        execution_time = datetime.datetime.now() - start
+        with open('additional_files/log.txt', 'w') as f:
+            f.write(str(datetime.datetime.now() - start))
         await asyncio.sleep(432000)
 
 
-if __name__ == '__main__':
-    asyncio.run(main())
+asyncio.run(main())
