@@ -15,7 +15,7 @@ from dictionary import numbers, months, months2
 
 def connection_to_bd(host, user, passwd, database):
     global connection, cur
-    connection = sqlite3.connect('olimpic_bd')
+    connection = sqlite3.connect('../additional_files/olimpic_bd')
     cur = connection.cursor()
 
 
