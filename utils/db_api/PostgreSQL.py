@@ -159,6 +159,14 @@ async def del_data_in_olimpic(telegram_id, subject):
     con.close()
 
 
+async def del_olympic(information):
+    main()
+    cur.execute(
+        f"DELETE FROM notification_dates WHERE  information = '{information}'")
+    con.commit()
+    con.close()
+
+
 async def del_feedback():
     main()
     cur.execute(

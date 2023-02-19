@@ -12,7 +12,8 @@ from additional_files.dictionary import lis_of_subjects, sub, subjects_rsosh
 from keyboards.default.connect_all_or_choice import keyboard_1
 from loader import dp
 from states import Test
-from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notification_dates, select_data_infor_id
+from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notification_dates, select_data_infor_id, \
+    del_olympic
 
 
 @dp.message_handler(Command("notification"))
@@ -136,6 +137,9 @@ async def check(dp):
         if flag is True and flag1 is True:
             await dp.bot.send_message(dat[i][0], f"{hbold('НЕ ЗАБУДЬТЕ!')}\n\n"
                                                  f"{dat[i][2]}")
+        else:
+            if data < now:
+                await del_olympic(dat[i][2])
 
 
 @dp.message_handler(Text(equals=["ДА!"]))
