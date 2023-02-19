@@ -10,12 +10,12 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from xvfbwrapper import Xvfb
 
-from additional_files.dictionary import numbers, months, months2
+from dictionary import numbers, months, months2
 
 
 def connection_to_bd(host, user, passwd, database):
     global connection, cur
-    connection = sqlite3.connect('additional_files/olimpic_bd')
+    connection = sqlite3.connect('olimpic_bd')
     cur = connection.cursor()
 
 
@@ -36,9 +36,9 @@ async def delete_subject(subject):
 
 async def subject_to_bd():
     subjects = 'Информатика, Математика, Физика, Химия, Биология, География, История, Обществознание, Право, ' \
-               'Экономика, Русский язык, Литература, Английский язык, Испанский язык, ' \
+               'Экономика, Русский язык, Литература, Английский язык, ' \
                'Французский язык, Немецкий язык, Астрономия, Робототехника, ' \
-               'Технология, Искусство, Черчение, Психология, Физкультура'.split(', ')
+               'Технология, Искусство, Черчение, Психология'.split(', ')
     for i in range(len(subjects)):
         try:
             await delete_subject(subject=subjects[i])
@@ -63,10 +63,10 @@ async def subject_to_bd():
                 await asyncio.sleep(0.05)
 
             html = driver.page_source
-            soup = BeautifulSoup(html, "lxml")
-
             driver.close()
             vdisplay.stop()
+
+            soup = BeautifulSoup(html, "lxml")
 
             a = soup.find_all('a', 'none_a black olimp_desc')
             for item in a:
