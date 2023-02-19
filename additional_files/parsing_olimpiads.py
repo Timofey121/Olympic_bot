@@ -1,5 +1,6 @@
 # import psycopg2
 import asyncio
+import datetime
 import sqlite3
 
 import requests
@@ -117,8 +118,12 @@ async def subject_to_bd():
 
 
 async def main():
+    global execution_time
+    execution_time = 0
     while True:
+        start = datetime.datetime.now()
         await subject_to_bd()
+        execution_time = datetime.datetime.now() - start
         await asyncio.sleep(432000)
 
 

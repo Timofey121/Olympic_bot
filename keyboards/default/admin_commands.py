@@ -32,6 +32,9 @@ keyboard_4 = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Отчистить БД от отзывов!")
         ],
+        [
+            KeyboardButton(text="Количество олимпиад в Базе Данных!")
+        ],
         
     ],
     resize_keyboard=True  # размер кнопки(не огромный)

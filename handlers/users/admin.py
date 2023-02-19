@@ -170,6 +170,10 @@ async def answer(message: types.Message, state: FSMContext):
             await message.answer('База данных отчищена!', reply_markup=ReplyKeyboardRemove())
             await state.finish()
 
+        elif message.text == 'Количество олимпиад в Базе Данных!':
+            await message.answer(f'Перезаписалась БД с олимпиадами.\nВ Бд {list(await count_users())[0][0]} '
+                                 f'строк!\nВремя выполнения: {execution_time}')
+
 
     except Exception as ex:
         print(ex)
