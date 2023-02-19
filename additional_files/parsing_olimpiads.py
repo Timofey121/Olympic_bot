@@ -48,6 +48,11 @@ async def subject_to_bd():
             options = webdriver.ChromeOptions()
             options.add_argument("--headless")
             options.add_argument('--no-sandbox')
+            options.add_argument("--disable-extensions")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--no-sandbox")
+            options.add_argument('--start-maximized')
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
             URL = f'https://olimpiada.ru/activities?type=any&subject%5B{numbers[subjects[i].strip().capitalize()]}' \
                   f'%5D=on&class=any&period_date=&period=week'
@@ -105,8 +110,17 @@ async def subject_to_bd():
 
                         await add_subject(subject=subjects[i], title=title, information=information_about_olimpiad,
                                           start=data_start.strip().split(' - ')[0].replace('-До', ''))
-                except:
+                except Exception as ex:
                     pass
         except Exception as ex:
             pass
 
+
+async def main():
+    while True:
+        await subject_to_bd()
+        await asyncio.sleep(432000)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())

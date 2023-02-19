@@ -1,21 +1,12 @@
 # -*- coding: utf8 -*-
-import MySQLdb
+import sqlite3
 
 
 def main():
     global con, cur
 
-    # con = sqlite3.connect('additional_files/olimpic_bd')
-    # cur = con.cursor()
-
-    db = MySQLdb.connect(host="193.107.238.204",  # your host, usually localhost
-                         user="root",  # your username
-                         passwd="NWWSZJ650jy9XKh",  # your password
-                         db="olimpic_bot")
-
-    # you must create a Cursor object. It will let
-    #  you execute all the queries you need
-    cur = db.cursor()
+    con = sqlite3.connect('additional_files/olimpic_bd')
+    cur = con.cursor()
 
 
 async def add_user(telegram_id, full_name, blocked, data_registration):
@@ -53,6 +44,14 @@ async def all_feedback():
 async def count_users():
     main()
     cur.execute(f"SELECT COUNT(*) FROM registration WHERE blocked='Нет'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def count_olympiads():
+    main()
+    cur.execute(f"SELECT COUNT(*) FROM olympiads")
     rows = cur.fetchall()
     con.close()
     return rows
