@@ -174,6 +174,7 @@ async def answer(message: types.Message, state: FSMContext):
             f = open('additional_files/log.txt').read()
             await message.answer(f'Перезаписалась БД с олимпиадами.\nВ Бд {list(await count_olympiads())[0][0]} '
                                  f'строк!\nВремя выполнения: {f}')
+            await state.finish()
 
     except Exception as ex:
         await state.finish()

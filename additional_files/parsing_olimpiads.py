@@ -118,7 +118,6 @@ async def subject_to_bd():
 
 
 async def main():
-    global execution_time
     while True:
         start = datetime.datetime.now()
         await subject_to_bd()

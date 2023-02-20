@@ -175,6 +175,14 @@ async def del_feedback():
     con.close()
 
 
+async def del_notification():
+    main()
+    cur.execute(
+        f"DELETE FROM notification_dates")
+    con.commit()
+    con.close()
+
+
 async def del_notif_in_olimpic(telegram_id, information):
     main()
     cur.execute(

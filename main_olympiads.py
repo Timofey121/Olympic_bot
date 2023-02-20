@@ -1,8 +1,10 @@
 import asyncio
+import datetime
 
 from data.config import ADMINS
 from handlers.users.notification import check
 from loader import dp
+from utils.db_api.PostgreSQL import del_notification
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
 
@@ -14,6 +16,8 @@ async def on_startup(dispatcher):
 
 async def test(dispatcher):
     while True:
+        if datetime.datetime.now().date() == datetime.datetime(datetime.datetime.now().year, 9, 1).date():
+            await del_notification()
         try:
             await check(dispatcher)
         except Exception as ex:
