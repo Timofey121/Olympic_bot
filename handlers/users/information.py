@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+import datetime
 
 import pymorphy2
 from aiogram import types
@@ -13,7 +14,8 @@ from keyboards.default.all_or_choice import keyboard_1
 from keyboards.default.connect_or_no import keyboard
 from loader import dp
 from states import Test
-from utils.db_api.PostgreSQL import subscriber_exists, information_about_olympiads
+from utils.db_api.PostgreSQL import subscriber_exists, information_about_olympiads, del_olympic, \
+    del_olympic_in_olympiads_parsing
 
 
 @dp.message_handler(Command("info"), state=None)
@@ -73,10 +75,12 @@ async def info_4(message: types.Message, state: FSMContext):
 
             name_olimpiads = []
             information_olimpiads = []
+            dates = []
 
             for item in gen:
                 name_olimpiads.append(item[0])
                 information_olimpiads.append(item[1])
+                dates.append(str(item[1].split('\n')[2]).strip())
 
             count = 0
             count_1 = 0
@@ -92,9 +96,15 @@ async def info_4(message: types.Message, state: FSMContext):
                     count_1 += 1
 
                 if f is True:
-                    count += 1
-                    flag = True
-                    await message.answer(f"{count}) {information_olimpiads[k]}")
+                    data = datetime.datetime.strptime(''.join(dates[k].split("-")), '%Y%m%d').date()
+                    now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+                    if data <= now:
+                        await del_olympic(information_olimpiads[k])
+                        await del_olympic_in_olympiads_parsing(information_olimpiads[k])
+                    else:
+                        count += 1
+                        flag = True
+                        await message.answer(f"{count}) {information_olimpiads[k]}")
 
             if flag is False:
                 if count_1 == 0:
@@ -117,7 +127,8 @@ async def info_4(message: types.Message, state: FSMContext):
                           "подключить уведомления на "
                           "разные олимпиады, хотите подключить уведомления?"), reply_markup=keyboard)
 
-        except:
+        except Exception as ex:
+            print(ex)
             await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
                                  "напишите нам в поддержку и мы обязательно ее решим.")
 

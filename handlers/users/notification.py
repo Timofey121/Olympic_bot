@@ -13,7 +13,7 @@ from keyboards.default.connect_all_or_choice import keyboard_1
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notification_dates, select_data_infor_id, \
-    del_olympic
+    del_olympic, del_olympic_in_olympiads_parsing, select_yes_or_no_in_notifications
 
 
 @dp.message_handler(Command("notification"))
@@ -95,10 +95,17 @@ async def notification_4(message: types.Message, state: FSMContext):
                         f = True
 
                 if f is True:
-                    e += 1
-                    flag = True
-                    await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k], subject=rt,
-                                                 information=information_olimpiads[k])
+                    data = datetime.datetime.strptime(''.join(data_start[k].split("-")), '%Y%m%d').date()
+                    now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+                    if data <= now:
+                        await del_olympic(information_olimpiads[k])
+                        await del_olympic_in_olympiads_parsing(information_olimpiads[k])
+                    else:
+                        e += 1
+                        flag = True
+                        if len(await select_yes_or_no_in_notifications(answer7, information_olimpiads[k])) == 0:
+                            await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k], subject=rt,
+                                                         information=information_olimpiads[k])
             if flag is False:
                 await message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
                                      "возможно подключить после  утверждения графика проведения олимпиад "

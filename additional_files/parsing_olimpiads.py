@@ -11,7 +11,8 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from xvfbwrapper import Xvfb
 
-from additional_files.dictionary import numbers, months, months2
+from additional_files.dictionary import numbers, months, months2, subjects_rsosh
+from utils.db_api.PostgreSQL import select_info, select, select_yes_or_no_in_notifications, add_notification_dates
 
 
 def connection_to_bd(host, user, passwd, database):
@@ -108,9 +109,30 @@ async def subject_to_bd():
                                                       f"Расписание можете посмотреть {hlink(title='ТУТ!', url=fg)}\n"
                                                       f"Сайт этой олимпиады Вы можете посмотреть"
                                                       f"{hlink(title='ТУТ!', url=href_olimp)}  \n")
+                        data = datetime.datetime.strptime(''.join(data_start.split("-")), '%Y%m%d').date()
+                        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+                        if data > now:
+                            await add_subject(subject=subjects[i], title=title, information=information_about_olimpiad,
+                                              start=data_start.strip().split(' - ')[0].replace('-До', ''))
 
-                        await add_subject(subject=subjects[i], title=title, information=information_about_olimpiad,
-                                          start=data_start.strip().split(' - ')[0].replace('-До', ''))
+                            gen = set(list(await select_info(subjects[i])))
+                            for tg in gen:
+                                if len(await select_yes_or_no_in_notifications(tg[0], information_about_olimpiad)) == 0:
+                                    f = title in subjects_rsosh[subjects[i].lower().capitalize()]
+                                    flag = False
+                                    olymp = list(await select(tg[0], subjects[i]))
+                                    for it in olymp:
+                                        if str(it[0]).replace('<u>', '').replace('</u>', '').split('\n')[
+                                            0].strip().replace('.',
+                                                               '') not in \
+                                                subjects_rsosh[subjects[i].lower().capitalize()]:
+                                            flag = True
+                                            break
+                                    if (flag is True) or (f is True and flag is False):
+                                        await add_notification_dates(telegram_id=tg[0], data_olymp=data_start,
+                                                                     subject=subjects[i],
+                                                                     information=information_about_olimpiad)
+
                 except Exception as ex:
                     pass
         except Exception as ex:

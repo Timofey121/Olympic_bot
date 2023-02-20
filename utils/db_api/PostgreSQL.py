@@ -127,6 +127,23 @@ async def select_data_olimp_use_id(telegram_id):
     return rows
 
 
+async def select_yes_or_no_in_notifications(telegram_id, information):
+    main()
+    cur.execute(
+        f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}' AND information='{information}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select_info(subject):
+    main()
+    cur.execute(f"SELECT telegram_id FROM notification_dates WHERE subject='{subject}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
 async def select_subjects_olimp_use_id(telegram_id):
     main()
     cur.execute(f"SELECT subject FROM notification_dates WHERE telegram_id='{telegram_id}'")
@@ -138,6 +155,15 @@ async def select_subjects_olimp_use_id(telegram_id):
 async def select_data_sub_info(telegram_id):
     main()
     cur.execute(f"SELECT data_olymp, subject, information FROM notification_dates WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select(telegram_id, subject):
+    main()
+    cur.execute(
+        f"SELECT information FROM notification_dates WHERE telegram_id='{telegram_id}' AND subject='{subject}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -163,6 +189,14 @@ async def del_olympic(information):
     main()
     cur.execute(
         f"DELETE FROM notification_dates WHERE  information = '{information}'")
+    con.commit()
+    con.close()
+
+
+async def del_olympic_in_olympiads_parsing(information):
+    main()
+    cur.execute(
+        f"DELETE FROM olympiads WHERE  information = '{information}'")
     con.commit()
     con.close()
 
