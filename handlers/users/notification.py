@@ -85,12 +85,15 @@ async def notification_4(message: types.Message, state: FSMContext):
                 data_start.append(item[2])
 
             e = 0
+            a = ''
             flag = False
             for k in range(len(name_olimpiads)):
                 f = False
                 if message.text == "Подключить ко всем!":
+                    a = 'no'
                     f = True
                 elif message.text == "Подключить к олимпиадам, входящим в РСОШ!":
+                    a = 'yes'
                     if name_olimpiads[k] in subjects_rsosh[yt.lower().capitalize()]:
                         f = True
 
@@ -105,7 +108,7 @@ async def notification_4(message: types.Message, state: FSMContext):
                         flag = True
                         if len(await select_yes_or_no_in_notifications(answer7, information_olimpiads[k])) == 0:
                             await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k], subject=rt,
-                                                         information=information_olimpiads[k])
+                                                         information=information_olimpiads[k], rsoch=a)
             if flag is False:
                 await message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
                                      "возможно подключить после  утверждения графика проведения олимпиад "

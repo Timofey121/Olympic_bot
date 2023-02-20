@@ -118,20 +118,17 @@ async def subject_to_bd():
                             gen = set(list(await select_info(subjects[i])))
                             for tg in gen:
                                 if len(await select_yes_or_no_in_notifications(tg[0], information_about_olimpiad)) == 0:
-                                    f = title in subjects_rsosh[subjects[i].lower().capitalize()]
-                                    flag = False
-                                    olymp = list(await select(tg[0], subjects[i]))
-                                    for it in olymp:
-                                        if str(it[0]).replace('<u>', '').replace('</u>', '').split('\n')[
-                                            0].strip().replace('.',
-                                                               '') not in \
-                                                subjects_rsosh[subjects[i].lower().capitalize()]:
-                                            flag = True
-                                            break
+                                    f = (title in subjects_rsosh[subjects[i].lower().capitalize()])
+                                    if 'no' in str(list(await select(tg[0], subjects[i]))[0]):
+                                        flag = False
+                                        a = 'no'
+                                    else:
+                                        flag = True
+                                        a = 'yes'
                                     if (flag is True) or (f is True and flag is False):
                                         await add_notification_dates(telegram_id=tg[0], data_olymp=data_start,
                                                                      subject=subjects[i],
-                                                                     information=information_about_olimpiad)
+                                                                     information=information_about_olimpiad, rsoch=a)
 
                 except Exception as ex:
                     pass

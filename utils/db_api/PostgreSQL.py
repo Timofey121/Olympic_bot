@@ -71,10 +71,10 @@ async def add_user_tech(telegram_id, help):
     con.close()
 
 
-async def add_notification_dates(telegram_id, data_olymp, subject, information):
+async def add_notification_dates(telegram_id, data_olymp, subject, information, rsoch):
     main()
-    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information) "
-                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}')")
+    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information, rsoch) "
+                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}', '{rsoch}')")
     con.commit()
     con.close()
 
@@ -163,7 +163,7 @@ async def select_data_sub_info(telegram_id):
 async def select(telegram_id, subject):
     main()
     cur.execute(
-        f"SELECT information FROM notification_dates WHERE telegram_id='{telegram_id}' AND subject='{subject}'")
+        f"SELECT rsoch FROM notification_dates WHERE telegram_id='{telegram_id}' AND subject='{subject}'")
     rows = cur.fetchall()
     con.close()
     return rows
