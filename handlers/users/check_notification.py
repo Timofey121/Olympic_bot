@@ -17,13 +17,6 @@ async def check_notification(message: types.Message):
             t = 0
             if len(a) > 0:
                 for i in range(len(a)):
-                    if a[i][1] in sub:
-                        word_text = sub[a[i][1]]
-                    else:
-                        morse = pymorphy2.MorphAnalyzer()
-                        ji = morse.parse(a[i][1].strip())[0]
-                        word_text = ji.inflect({'loct'}).word
-
                     if len(str("\n".join(c[t]))) + len(str(f"{i + 1}) Уведомления подключены к \n"
                                                            f"{str(''.join(a[i][2]))}")) > 4096:
                         t += 1
