@@ -171,11 +171,14 @@ async def answer(message: types.Message, state: FSMContext):
             await state.finish()
 
         elif message.text == 'Количество олимпиад в Базе Данных!':
-            f = open('additional_files/log.txt').read().split(';')
-            await message.answer(
-                f'{f[0]} <-> Последние изменения в БД с олимпиадами.\nВ Бд {list(await count_olympiads())[0][0]} '
-                f'строк!\nВремя выполнения: {f[1]}')
-            await state.finish()
+            try:
+                f = open('additional_files/log.txt').read().split(';')
+                await message.answer(
+                    f'{f[0]}\nПоследние изменения в БД с олимпиадами.\nВ Бд '
+                    f'{list(await count_olympiads())[0][0]} строк!\nВремя выполнения: {f[1]}')
+                await state.finish()
+            except Exception as ex:
+                print(ex)
 
     except Exception as ex:
         await state.finish()
