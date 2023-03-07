@@ -63,70 +63,74 @@ async def notification_4(message: types.Message, state: FSMContext):
         j = 0
         j += 1
         try:
-            if sa[i] in sub:
-                word_text_1 = sub[sa[i]]
-            else:
-                morse = pymorphy2.MorphAnalyzer()
-                ji = morse.parse(sa[i].strip())[0]
-                word_text_1 = ji.inflect({'datv'}).word
-            await message.answer(hbold(f"Началось подключение уведомлений к {word_text_1.capitalize()}!\n"
-                                       f"Это займет около 2х минут"),
-                                 reply_markup=ReplyKeyboardRemove())
+            if f'{sa[i]}  \n' in lis_of_subjects:
+                if sa[i] in sub:
+                    word_text_1 = sub[sa[i]]
+                else:
+                    morse = pymorphy2.MorphAnalyzer()
+                    ji = morse.parse(sa[i].strip())[0]
+                    word_text_1 = ji.inflect({'datv'}).word
+                await message.answer(hbold(f"Началось подключение уведомлений к {word_text_1.capitalize()}!\n"
+                                           f"Это займет около 2х минут"),
+                                     reply_markup=ReplyKeyboardRemove())
 
-            gen = list(await data_olympiads(str(ht).lower().capitalize()))
+                gen = list(await data_olympiads(str(ht).lower().capitalize()))
 
-            name_olimpiads = []
-            information_olimpiads = []
-            data_start = []
+                name_olimpiads = []
+                information_olimpiads = []
+                data_start = []
 
-            for item in gen:
-                name_olimpiads.append(item[0])
-                information_olimpiads.append(item[1])
-                data_start.append(item[2])
+                for item in gen:
+                    name_olimpiads.append(item[0])
+                    information_olimpiads.append(item[1])
+                    data_start.append(item[2])
 
-            e = 0
-            a = ''
-            flag = False
-            for k in range(len(name_olimpiads)):
-                f = False
-                if message.text == "Подключить ко всем!":
-                    a = 'no'
-                    f = True
-                elif message.text == "Подключить к олимпиадам, входящим в РСОШ!":
-                    a = 'yes'
-                    if name_olimpiads[k] in subjects_rsosh[yt.lower().capitalize()]:
+                e = 0
+                a = ''
+                flag = False
+                for k in range(len(name_olimpiads)):
+                    f = False
+                    if message.text == "Подключить ко всем!":
+                        a = 'no'
                         f = True
+                    elif message.text == "Подключить к олимпиадам, входящим в РСОШ!":
+                        a = 'yes'
+                        if name_olimpiads[k] in subjects_rsosh[yt.lower().capitalize()]:
+                            f = True
 
-                if f is True:
-                    data = datetime.datetime.strptime(''.join(data_start[k].split("-")), '%Y%m%d').date()
-                    now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
-                    if data <= now:
-                        await del_olympic(information_olimpiads[k])
-                        await del_olympic_in_olympiads_parsing(information_olimpiads[k])
-                    else:
-                        e += 1
-                        flag = True
-                        if len(await select_yes_or_no_in_notifications(answer7, information_olimpiads[k])) == 0:
-                            await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k], subject=rt,
-                                                         information=information_olimpiads[k], rsoch=a)
-            if flag is False:
-                await message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
-                                     "возможно подключить после  утверждения графика проведения олимпиад "
-                                     f"школьников и их уровней "
-                                     f"{datetime.datetime.now().year}/{datetime.datetime.now().year + 1} на "
-                                     f"учебный год! Ориентировочно "
-                                     "сентябрь-октябрь!")
+                    if f is True:
+                        data = datetime.datetime.strptime(''.join(data_start[k].split("-")), '%Y%m%d').date()
+                        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+                        if data <= now:
+                            await del_olympic(information_olimpiads[k])
+                            await del_olympic_in_olympiads_parsing(information_olimpiads[k])
+                        else:
+                            e += 1
+                            flag = True
+                            if len(await select_yes_or_no_in_notifications(answer7, information_olimpiads[k])) == 0:
+                                await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k], subject=rt,
+                                                             information=information_olimpiads[k], rsoch=a)
+                if flag is False:
+                    await message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
+                                         "возможно подключить после  утверждения графика проведения олимпиад "
+                                         f"школьников и их уровней "
+                                         f"{datetime.datetime.now().year}/{datetime.datetime.now().year + 1} на "
+                                         f"учебный год! Ориентировочно "
+                                         "сентябрь-октябрь!")
+                else:
+                    if message.text == "Подключить к олимпиадам, входящим в РСОШ!":
+                        if e == 0:
+                            await message.answer(
+                                hbold(f"К сожалению, нет таких олимпиад, которые помогут Вам при поступлении, "
+                                      f"посмотрите весь список олимпиад по {str(word_text_1).capitalize()}:"))
+                            break
+                        else:
+                            await message.answer(hbold(f"Уведомления подключены к {word_text_1.capitalize()}!"))
+                    elif message.text == "Подключить ко всем!":
+                        await message.answer(hbold(f"Подключены уведомления к {word_text_1.capitalize()}!"))
             else:
-                if message.text == "Подключить к олимпиадам, входящим в РСОШ!":
-                    if e == 0:
-                        await message.answer(
-                            hbold(f"К сожалению, нет таких олимпиад, которые помогут Вам при поступлении, "
-                                  f"посмотрите весь список олимпиад по {str(word_text_1).capitalize()}:"))
-                        break
-                    else:
-                        await message.answer(hbold(f"Уведомления подключены к {word_text_1.capitalize()}!"))
-                elif message.text == "Подключить ко всем!":
-                    await message.answer(hbold(f"Подключены уведомления к {word_text_1.capitalize()}!"))
+                await message.answer(f"Такого предмета не существует, проверьте правильность написания!")
+                await state.finish()
 
         except Exception as ex:
             await message.answer("Проверьте правильность название предмета! Нашли ошибку, "

@@ -59,73 +59,78 @@ async def info_4(message: types.Message, state: FSMContext):
         ht = sa[i]
         yt = sa[i]
         try:
-            if sa[i] in sub:
-                word_text = sub[sa[i]]
-            else:
-                morse = pymorphy2.MorphAnalyzer()
-                ji = morse.parse(sa[i].strip())[0]
-
-                word_text = ji.inflect({'loct'}).word
-
-            await message.answer(hbold(f"Подождите немного!\nНачался поиск информации об {word_text.capitalize()}!\n"
-                                       f"Это займет около 2х минут"),
-                                 reply_markup=ReplyKeyboardRemove())
-
-            gen = list(await information_about_olympiads(str(ht).lower().capitalize()))
-
-            name_olimpiads = []
-            information_olimpiads = []
-            dates = []
-
-            for item in gen:
-                name_olimpiads.append(item[0])
-                information_olimpiads.append(item[1])
-                dates.append(str(item[1].split('\n')[2]).strip())
-
-            count = 0
-            count_1 = 0
-            flag = False
-
-            for k in range(len(name_olimpiads)):
-                f = False
-
-                if message.text == "Вывести все!":
-                    f = True
-                elif message.text == "Вывести олимпиады, входящие в РСОШ!":
-                    f = name_olimpiads[k].strip() in subjects_rsosh[yt.lower().capitalize()]
-                    count_1 += 1
-
-                if f is True:
-                    data = datetime.datetime.strptime(''.join(dates[k].split("-")), '%Y%m%d').date()
-                    now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
-                    if data <= now:
-                        await del_olympic(information_olimpiads[k])
-                        await del_olympic_in_olympiads_parsing(information_olimpiads[k])
-                    else:
-                        count += 1
-                        flag = True
-                        await message.answer(f"{count}) {information_olimpiads[k]}")
-
-            if flag is False:
-                if count_1 == 0:
-                    await message.answer(
-                        'К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
+            if f'{sa[i]}  \n' in lis_of_subjects:
+                if sa[i] in sub:
+                    word_text = sub[sa[i]]
                 else:
-                    await message.answer('К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
+                    morse = pymorphy2.MorphAnalyzer()
+                    ji = morse.parse(sa[i].strip())[0]
+
+                    word_text = ji.inflect({'loct'}).word
+
+                await message.answer(
+                    hbold(f"Подождите немного!\nНачался поиск информации об {word_text.capitalize()}!\n"
+                          f"Это займет около 2х минут"),
+                    reply_markup=ReplyKeyboardRemove())
+
+                gen = list(await information_about_olympiads(str(ht).lower().capitalize()))
+
+                name_olimpiads = []
+                information_olimpiads = []
+                dates = []
+
+                for item in gen:
+                    name_olimpiads.append(item[0])
+                    information_olimpiads.append(item[1])
+                    dates.append(str(item[1].split('\n')[2]).strip())
+
+                count = 0
+                count_1 = 0
+                flag = False
+
+                for k in range(len(name_olimpiads)):
+                    f = False
+
+                    if message.text == "Вывести все!":
+                        f = True
+                    elif message.text == "Вывести олимпиады, входящие в РСОШ!":
+                        f = name_olimpiads[k].strip() in subjects_rsosh[yt.lower().capitalize()]
+                        count_1 += 1
+
+                    if f is True:
+                        data = datetime.datetime.strptime(''.join(dates[k].split("-")), '%Y%m%d').date()
+                        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+                        if data <= now:
+                            await del_olympic(information_olimpiads[k])
+                            await del_olympic_in_olympiads_parsing(information_olimpiads[k])
+                        else:
+                            count += 1
+                            flag = True
+                            await message.answer(f"{count}) {information_olimpiads[k]}")
+
+                if flag is False:
+                    if count_1 == 0:
+                        await message.answer(
+                            'К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
+                    else:
+                        await message.answer('К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
+                else:
+                    await message.answer(
+                        hbold("Олимпиады упрощают поступление в ВУЗ! Они позволяют "
+                              "поступить в ВУЗ без экзаменов или засчитать 100 баллов по ЕГЭ."))
+                    await message.answer(
+                        hbold("Не забывайте, что ЕГЭ — это всего одна попытка. Олимпиад много "
+                              "и количество раз, "
+                              "которое вы попробуете, зависит только от вас. Тут работает теория вероятностей"
+                              " — чем больше пробуешь, тем выше шансы на успех."))
+                    await message.answer(
+                        hbold("По статистике каждый школьник забывает примерно о 6 из 10 олимпиад, из-за этого"
+                              " снижается шанс поступления в ВУЗ. Поэтому мы предлагаем Вам, бесплатно "
+                              "подключить уведомления на "
+                              "разные олимпиады, хотите подключить уведомления?"), reply_markup=keyboard)
             else:
-                await message.answer(
-                    hbold("Олимпиады упрощают поступление в ВУЗ! Они позволяют "
-                          "поступить в ВУЗ без экзаменов или засчитать 100 баллов по ЕГЭ."))
-                await message.answer(
-                    hbold("Не забывайте, что ЕГЭ — это всего одна попытка. Олимпиад много "
-                          "и количество раз, "
-                          "которое вы попробуете, зависит только от вас. Тут работает теория вероятностей"
-                          " — чем больше пробуешь, тем выше шансы на успех."))
-                await message.answer(
-                    hbold("По статистике каждый школьник забывает примерно о 6 из 10 олимпиад, из-за этого"
-                          " снижается шанс поступления в ВУЗ. Поэтому мы предлагаем Вам, бесплатно "
-                          "подключить уведомления на "
-                          "разные олимпиады, хотите подключить уведомления?"), reply_markup=keyboard)
+                await message.answer(f"Такого предмета не существует, проверьте правильность написания!",
+                                     reply_markup=ReplyKeyboardRemove())
 
         except Exception as ex:
             print(ex)

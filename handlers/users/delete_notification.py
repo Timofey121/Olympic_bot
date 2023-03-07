@@ -6,7 +6,7 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold
 
-from additional_files.dictionary import lis_of_subjects, sub, subjects_rsosh
+from additional_files.dictionary import lis_of_subjects, sub
 from keyboards.default.del_subject_or_choice import keyboard_3
 from loader import dp
 from states import Test
@@ -88,24 +88,27 @@ async def del_notification_2(message: types.Message, state: FSMContext):
             sa[i] = str(sa[i]).lstrip().rstrip()
         for i in range(len(sa)):
             try:
-                htt = sa[i]
-                rgt = list(await select_data_olimp_use_subject(str(htt).lower().capitalize()))
+                if f'{sa[i]}  \n' in lis_of_subjects:
+                    htt = sa[i]
+                    rgt = list(await select_data_olimp_use_subject(str(htt).lower().capitalize()))
 
-                if sa[i] in sub:
-                    word_text = sub[sa[i]]
-                else:
-                    morse = pymorphy2.MorphAnalyzer()
-                    ji = morse.parse(sa[i].strip())[0]
-                    word_text = ji.inflect({'datv'}).word
+                    if sa[i] in sub:
+                        word_text = sub[sa[i]]
+                    else:
+                        morse = pymorphy2.MorphAnalyzer()
+                        ji = morse.parse(sa[i].strip())[0]
+                        word_text = ji.inflect({'datv'}).word
 
-                if rgt:
-                    await message.answer(
-                        hbold(f"Началось отключение уведомлений, подключенных к {word_text.capitalize()}!"))
-                    rt = sa[i]
-                    await del_data_in_olimpic(telegram_id=telegram_id, subject=rt)
-                    await message.answer(hbold(f"Отключены уведомления, подключенные к {word_text.capitalize()}!"))
+                    if rgt:
+                        await message.answer(
+                            hbold(f"Началось отключение уведомлений, подключенных к {word_text.capitalize()}!"))
+                        rt = sa[i]
+                        await del_data_in_olimpic(telegram_id=telegram_id, subject=rt)
+                        await message.answer(hbold(f"Отключены уведомления, подключенные к {word_text.capitalize()}!"))
+                    else:
+                        await message.answer(hbold(f"Уведомления не подключены к {word_text.capitalize()}"))
                 else:
-                    await message.answer(hbold(f"Уведомления не подключены к {word_text.capitalize()}"))
+                    await message.answer(f"Такого предмета не существует, проверьте правильность написания!")
             except Exception as ex:
                 await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
                                      "напишите нам в поддержку и мы обязательно ее решим.")
