@@ -1,257 +1,180 @@
-# -*- coding: utf8 -*-
+# import psycopg2
+import asyncio
+import datetime
 import sqlite3
 
+import requests
+from aiogram.utils.markdown import hlink, hunderline, hbold
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from xvfbwrapper import Xvfb
 
-def main():
-    global con, cur
-
-    con = sqlite3.connect('additional_files/olimpic_bd')
-    cur = con.cursor()
-
-
-async def add_user(telegram_id, full_name, blocked, data_registration):
-    main()
-    cur.execute(
-        f"INSERT INTO registration (telegram_id, full_name, blocked, data_registration) VALUES('{telegram_id}', '{full_name}', '{blocked}', '{data_registration}')")
-    con.commit()
-    con.close()
+from additional_files.dictionary import numbers, months, months2, subjects_rsosh
 
 
-async def select_all_users():
-    main()
-    cur.execute(f"SELECT * FROM registration WHERE blocked='Нет'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def subscriber_exists(telegram_id):
-    main()
-    cur.execute(f"SELECT * FROM registration WHERE telegram_id='{telegram_id}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def all_feedback():
-    main()
-    cur.execute(f"SELECT * FROM feedback")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def count_users():
-    main()
-    cur.execute(f"SELECT COUNT(*) FROM registration WHERE blocked='Нет'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def count_olympiads():
-    main()
-    cur.execute(f"SELECT COUNT(*) FROM olympiads")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def add_user_feedback(telegram_id, feedback):
-    main()
-    cur.execute(f"INSERT INTO feedback (telegram_id, feedback) VALUES('{telegram_id}', '{feedback}')")
-    con.commit()
-    con.close()
-
-
-async def add_user_tech(telegram_id, help):
-    main()
-    cur.execute(f"INSERT INTO technical_support (telegram_id, help) VALUES('{telegram_id}', '{help}')")
-    con.commit()
-    con.close()
-
-
-async def add_notification_dates(telegram_id, data_olymp, subject, information, rsoch):
-    main()
-    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information, rsoch) "
-                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}', '{rsoch}')")
-    con.commit()
-    con.close()
-
-
-async def check_blocked(telegram_id):
-    main()
-    cur.execute(f"SELECT blocked FROM registration WHERE telegram_id='{telegram_id}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def update_blocked_users(telegram_id, blocked):
-    main()
-    cur.execute(
-        f"UPDATE registration SET blocked='{blocked}' WHERE telegram_id='{telegram_id}'")
-    con.commit()
-    con.close()
-
-
-async def select_blocked_users():
-    main()
-    cur.execute(f"SELECT * FROM registration WHERE blocked='Да'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def information_about_olympiads(subject):
-    main()
-    cur.execute(f"SELECT title, information FROM olympiads WHERE subject='{subject}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def data_olympiads(subject):
-    main()
-    cur.execute(f"SELECT title, information, start FROM olympiads WHERE subject='{subject}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def select_data_olimp_use_id(telegram_id):
-    main()
-    cur.execute(f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def select_yes_or_no_in_notifications(telegram_id, information):
-    main()
-    cur.execute(
-        f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}' AND information='{information}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
+def connection_to_bd(host, user, passwd, database):
+    global connection, cur
+    connection = sqlite3.connect('olimpic_bd')
+    cur = connection.cursor()
 
 
 async def select_info(subject):
-    main()
+    connection_to_bd()
     cur.execute(f"SELECT telegram_id FROM notification_dates WHERE subject='{subject}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def select_subjects_olimp_use_id(telegram_id):
-    main()
-    cur.execute(f"SELECT subject FROM notification_dates WHERE telegram_id='{telegram_id}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def select_data_sub_info(telegram_id):
-    main()
-    cur.execute(f"SELECT data_olymp, subject, information FROM notification_dates WHERE telegram_id='{telegram_id}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
 async def select(telegram_id, subject):
-    main()
+    connection_to_bd()
     cur.execute(
         f"SELECT rsoch FROM notification_dates WHERE telegram_id='{telegram_id}' AND subject='{subject}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
-
-async def select_data_olimp_use_subject(subject):
-    main()
-    cur.execute(f"SELECT data_olymp FROM notification_dates WHERE subject='{subject}'")
+async def select_yes_or_no_in_notifications(telegram_id, information):
+    connection_to_bd()
+    cur.execute(
+        f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}' AND information='{information}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
-
-async def del_data_in_olimpic(telegram_id, subject):
-    main()
-    cur.execute(
-        f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND subject = '{subject}'")
+async def add_notification_dates(telegram_id, data_olymp, subject, information, rsoch):
+    connection_to_bd()
+    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information, rsoch) "
+                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}', '{rsoch}')")
     con.commit()
     con.close()
 
 
-async def del_olympic(information):
-    main()
-    cur.execute(
-        f"DELETE FROM notification_dates WHERE  information = '{information}'")
-    con.commit()
-    con.close()
+
+async def add_subject(subject, title, information, start):
+    connection_to_bd('host', 'user', 'passwd', 'database')
+    cur.execute(f"INSERT INTO olympiads (subject, title, information, start) VALUES ('{subject}', '{title}', "
+                f"'{information}', '{start}')")
+    connection.commit()
+    connection.close()
 
 
-async def del_olympic_in_olympiads_parsing(information):
-    main()
-    cur.execute(
-        f"DELETE FROM olympiads WHERE  information = '{information}'")
-    con.commit()
-    con.close()
+async def delete_subject(subject):
+    connection_to_bd('host', 'user', 'passwd', 'database')
+    cur.execute(f"DELETE FROM olympiads WHERE subject = '{subject}'")
+    connection.commit()
+    connection.close()
 
 
-async def del_feedback():
-    main()
-    cur.execute(
-        f"DELETE FROM feedback")
-    con.commit()
-    con.close()
+async def subject_to_bd():
+    subjects = 'Информатика, Математика, Физика, Химия, Биология, География, История, Обществознание, Право, ' \
+               'Экономика, Русский язык, Литература, Английский язык, ' \
+               'Французский язык, Немецкий язык, Астрономия, Робототехника, ' \
+               'Технология, Искусство, Черчение, Психология'.split(', ')
+    for i in range(len(subjects)):
+        try:
+            await delete_subject(subject=subjects[i])
+            vdisplay = Xvfb()
+            vdisplay.start()
+            data_start = ''
+            options = webdriver.ChromeOptions()
+            options.add_argument("--headless")
+            options.add_argument('--no-sandbox')
+            options.add_argument("--disable-extensions")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--no-sandbox")
+            options.add_argument('--start-maximized')
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            URL = f'https://olimpiada.ru/activities?type=any&subject%5B{numbers[subjects[i].strip().capitalize()]}' \
+                  f'%5D=on&class=any&period_date=&period=week'
+            driver.get(URL)
+
+            for j in range(10):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                await asyncio.sleep(0.05)
+
+            html = driver.page_source
+            driver.close()
+            vdisplay.stop()
+
+            soup = BeautifulSoup(html, "lxml")
+
+            a = soup.find_all('a', 'none_a black olimp_desc')
+            for item in a:
+                try:
+                    url = "https://olimpiada.ru" + item.get('href')
+                    req = requests.get(url=url)
+                    src = req.text
+                    soup = BeautifulSoup(src, "lxml")
+                    title = soup.find_all('title')[0].text.strip()
+
+                    href_olimp = soup.find_all('div', 'contacts')[0].find('a', 'color').get('href')
+
+                    fg = "https://olimpiada.ru" + soup.find_all('tr', 'notgreyclass')[0].find("a").get('href')
+
+                    if fg != 'Расписание олимпиады в этом году пока не известно':
+                        url = fg
+                        req = requests.get(url=url)
+                        src = req.text
+                        soup = BeautifulSoup(src, "lxml")
+
+                        step = soup.find('div', 'right').find('h1').text
+                        data_start1 = (soup.find('span', 'main_date red').text.strip().replace('\n', '')
+                                       .replace('20', ' 20').replace('!', '').replace('До', '')
+                                       ).strip().replace(' ', ' ').split('...')[0]
+
+                        for item2 in months2:
+                            if item2 in data_start1:
+                                data_start1 = data_start1.split(item2.strip())
+                                if len(data_start1[0]) == 0:
+                                    data_start1 = data_start1[1]
+
+                                data_start = f"{data_start1[-1].strip()}-{months[item2.strip()]}-" \
+                                             f"{('0' * (2 - len(data_start1[0].strip())))}{data_start1[0].split('-')[0].strip()}"
+
+                        information_about_olimpiad = (f"{hunderline(title)}.  \n"
+                                                      f"Этап олимпиады - {hbold(step)} \n"
+                                                      f"{data_start} \n"
+                                                      f"Расписание можете посмотреть {hlink(title='ТУТ!', url=fg)}\n"
+                                                      f"Сайт этой олимпиады Вы можете посмотреть"
+                                                      f"{hlink(title='ТУТ!', url=href_olimp)}  \n")
+                        data = datetime.datetime.strptime(''.join(data_start.split("-")), '%Y%m%d').date()
+                        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+                        if data > now:
+                            await add_subject(subject=subjects[i], title=title, information=information_about_olimpiad,
+                                              start=data_start.strip().split(' - ')[0].replace('-До', ''))
+
+                            gen = set(list(await select_info(subjects[i])))
+                            for tg in gen:
+                                if len(await select_yes_or_no_in_notifications(tg[0], information_about_olimpiad)) == 0:
+                                    f = (title in subjects_rsosh[subjects[i].lower().capitalize()])
+                                    if 'no' in str(list(await select(tg[0], subjects[i]))[0]):
+                                        flag = False
+                                        a = 'no'
+                                    else:
+                                        flag = True
+                                        a = 'yes'
+                                    if (flag is True) or (f is True and flag is False):
+                                        await add_notification_dates(telegram_id=tg[0], data_olymp=data_start,
+                                                                     subject=subjects[i],
+                                                                     information=information_about_olimpiad, rsoch=a)
+
+                except Exception as ex:
+                    pass
+        except Exception as ex:
+            pass
 
 
-async def del_notification():
-    main()
-    cur.execute(
-        f"DELETE FROM notification_dates")
-    con.commit()
-    con.close()
+async def main():
+    while True:
+        start = datetime.datetime.now()
+        await subject_to_bd()
+        with open('additional_files/log.txt', 'w') as f:
+            f.write(f"{datetime.datetime.today().date()};{str(datetime.datetime.now() - start).split('.')[0]}")
+        await asyncio.sleep(432000)
 
 
-async def del_notif_in_olimpic(telegram_id, information):
-    main()
-    cur.execute(
-        f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND information = '{information}'")
-    con.commit()
-    con.close()
-
-
-async def del_tech(tag, help):
-    main()
-    cur.execute(
-        f"DELETE FROM technical_support WHERE telegram_id = '{tag}' AND help = '{help}'")
-    con.commit()
-    con.close()
-
-
-async def all_tech_failed():
-    main()
-    cur.execute(f"SELECT telegram_id, help FROM technical_support")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def select_data_infor_id():
-    main()
-    cur.execute(f"SELECT telegram_id, data_olymp, information FROM notification_dates")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def subscribe_payment(telegram_id):
-    main()
-    cur.execute(f"SELECT data FROM payment WHERE telegram_id='{telegram_id}'")
-    rows = cur.fetchall()
-    con.close()
-    return rows
+asyncio.run(main())
