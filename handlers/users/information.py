@@ -28,7 +28,7 @@ async def info(message: types.Message):
         abc = []
         for i in range(len(lis_of_subjects)):
             abc.append(f"{i + 1}) {lis_of_subjects[i]}")
-        await message.answer(f"{''.join(abc)}"
+        await message.answer(f"{''.join(abc)}\n"
                              f"{hbold('Пример ввода:')}\n"
                              "1) География\n"
                              "2) География, Математика")

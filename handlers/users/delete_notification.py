@@ -38,7 +38,7 @@ async def del_notification_1(message: types.Message, state: FSMContext):
                 for i in range(len(lis_of_subjects)):
                     abc.append(f"{i + 1}) {lis_of_subjects[i]}")
                 await message.answer(
-                    f"{''.join(abc)} Пример ввода:\n"
+                    f"{''.join(abc)}\n Пример ввода:\n"
                     "1) География\n"
                     "2) География, Математика")
             else:
