@@ -175,7 +175,8 @@ async def answer(message: types.Message, state: FSMContext):
                 f = open('additional_files/log.txt').read().split(';')
                 await message.answer(
                     f'{f[0]}\nПоследние изменения в БД с олимпиадами.\nВ Бд '
-                    f'{list(await count_olympiads())[0][0]} строк!\nВремя выполнения: {f[1]}')
+                    f'{list(await count_olympiads())[0][0]} строк!\nВремя выполнения: {f[1]}',
+                    reply_markup=ReplyKeyboardRemove())
                 await state.finish()
             except Exception as ex:
                 print(ex)
