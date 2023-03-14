@@ -12,13 +12,46 @@ from webdriver_manager.chrome import ChromeDriverManager
 from xvfbwrapper import Xvfb
 
 from additional_files.dictionary import numbers, months, months2, subjects_rsosh
-from utils.db_api.PostgreSQL import select_info, select, select_yes_or_no_in_notifications, add_notification_dates
 
 
 def connection_to_bd(host, user, passwd, database):
     global connection, cur
     connection = sqlite3.connect('additional_files/olimpic_bd')
     cur = connection.cursor()
+
+
+async def add_notification_dates(telegram_id, data_olymp, subject, information, rsoch):
+    connection_to_bd('host', 'user', 'passwd', 'database')
+    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information, rsoch) "
+                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}', '{rsoch}')")
+    connection.commit()
+    connection.close()
+
+
+async def select_yes_or_no_in_notifications(telegram_id, information):
+    connection_to_bd('host', 'user', 'passwd', 'database')
+    cur.execute(
+        f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}' AND information='{information}'")
+    rows = cur.fetchall()
+    connection.close()
+    return rows
+
+
+async def select_info(subject):
+    connection_to_bd('host', 'user', 'passwd', 'database')
+    cur.execute(f"SELECT telegram_id FROM notification_dates WHERE subject='{subject}'")
+    rows = cur.fetchall()
+    connection.close()
+    return rows
+
+
+async def select(telegram_id, subject):
+    connection_to_bd('host', 'user', 'passwd', 'database')
+    cur.execute(
+        f"SELECT rsoch FROM notification_dates WHERE telegram_id='{telegram_id}' AND subject='{subject}'")
+    rows = cur.fetchall()
+    connection.close()
+    return rows
 
 
 async def add_subject(subject, title, information, start):
@@ -36,7 +69,19 @@ async def delete_subject(subject):
     connection.close()
 
 
+async def clear():
+    global information_about_olimpiad, data_start, gen, e, a, count, count_1, soup, URL, data_start1, subjects, step, \
+        src, req, url, fg, data, now
+    e, a, count, count_1 = 0, 0, 0, 0
+    data_start, gen = [], []
+    soup, data_start1, URL, information_about_olimpiad, step = '', '', '', '', ''
+    fg, src, req, url = '', '', '', ''
+    data = now = ''
+
+
 async def subject_to_bd():
+    global information_about_olimpiad, data_start, gen, e, a, count, count_1, soup, URL, data_start1, subjects, step, \
+        src, req, url, fg, data, now
     subjects = 'Информатика, Математика, Физика, Химия, Биология, География, История, Обществознание, Право, ' \
                'Экономика, Русский язык, Литература, Английский язык, ' \
                'Французский язык, Немецкий язык, Астрономия, Робототехника, ' \
@@ -134,6 +179,7 @@ async def subject_to_bd():
                     pass
         except Exception as ex:
             pass
+    await clear()
 
 
 async def main():

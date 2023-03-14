@@ -16,15 +16,6 @@ from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notif
     del_olympic, del_olympic_in_olympiads_parsing, select_yes_or_no_in_notifications
 
 
-async def clear():
-    global name_olimpiads, information_olimpiads, data_start, ht, yt, rt, gen, e, a
-    e, a = 0, 0
-    name_olimpiads, information_olimpiads, data_start, gen = [], [], [], []
-    ht = ''
-    yt = ''
-    rt = ''
-
-
 @dp.message_handler(Command("notification"))
 async def notification(message: types.Message):
     if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
@@ -40,6 +31,7 @@ async def notification(message: types.Message):
                              f"{hbold('Пример ввода:')}\n"
                              "1) География\n"
                              "2) География, Математика")
+        abc = []
         await Test.Q_for_notification.set()
     else:
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
@@ -66,9 +58,6 @@ async def notification_4(message: types.Message, state: FSMContext):
         sa[i] = str(sa[i]).lstrip().rstrip()
 
     for i in range(len(sa)):
-        ht = sa[i]
-        yt = sa[i]
-        rt = sa[i]
         try:
             if f'{sa[i]}  \n' in lis_of_subjects:
                 if sa[i] in sub:
@@ -81,7 +70,7 @@ async def notification_4(message: types.Message, state: FSMContext):
                                            f"Это займет около 2х минут"),
                                      reply_markup=ReplyKeyboardRemove())
 
-                gen = list(await data_olympiads(str(ht).lower().capitalize()))
+                gen = list(await data_olympiads(str(sa[i]).lower().capitalize()))
 
                 name_olimpiads = []
                 information_olimpiads = []
@@ -97,11 +86,11 @@ async def notification_4(message: types.Message, state: FSMContext):
                 for k in range(len(name_olimpiads)):
                     f = False
                     if message.text == "Подключить ко всем!":
-                        a = 'no'
                         f = True
+                        a = 'no'
                     elif message.text == "Подключить к олимпиадам, входящим в РСОШ!":
-                        a = 'yes'
-                        if name_olimpiads[k] in subjects_rsosh[yt.lower().capitalize()]:
+                        if name_olimpiads[k] in subjects_rsosh[sa[i].lower().capitalize()]:
+                            a = 'yes'
                             f = True
 
                     if f is True:
@@ -114,7 +103,8 @@ async def notification_4(message: types.Message, state: FSMContext):
                             e += 1
                             flag = True
                             if len(await select_yes_or_no_in_notifications(answer7, information_olimpiads[k])) == 0:
-                                await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k], subject=rt,
+                                await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k],
+                                                             subject=sa[i],
                                                              information=information_olimpiads[k], rsoch=a)
                 if flag is False:
                     await message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
@@ -136,13 +126,11 @@ async def notification_4(message: types.Message, state: FSMContext):
                         await message.answer(hbold(f"Подключены уведомления к {word_text_1.capitalize()}!"))
             else:
                 await message.answer(f"Такого предмета не существует, проверьте правильность написания!")
-                await clear()
                 await state.finish()
 
         except Exception as ex:
             await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
                                  "напишите нам в поддержку и мы обязательно ее решим.")
-    await clear()
     await state.finish()
 
 

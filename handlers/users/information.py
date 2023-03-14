@@ -49,6 +49,7 @@ async def info_3(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Test.Q_for_info_2)
 async def info_4(message: types.Message, state: FSMContext):
+    global name_olimpiads, information_olimpiads, data_start, gen, e, a, count, count_1, sa, abc
     data = await state.get_data()
     answer2 = data.get("answer2")
     sa = answer2.split(",")
@@ -56,8 +57,6 @@ async def info_4(message: types.Message, state: FSMContext):
         sa[i] = str(sa[i]).lstrip().rstrip()
 
     for i in range(len(sa)):
-        ht = sa[i]
-        yt = sa[i]
         try:
             if f'{sa[i]}  \n' in lis_of_subjects:
                 if sa[i] in sub:
@@ -73,7 +72,7 @@ async def info_4(message: types.Message, state: FSMContext):
                           f"Это займет около 2х минут"),
                     reply_markup=ReplyKeyboardRemove())
 
-                gen = list(await information_about_olympiads(str(ht).lower().capitalize()))
+                gen = list(await information_about_olympiads(str(sa[i]).lower().capitalize()))
 
                 name_olimpiads = []
                 information_olimpiads = []
@@ -94,13 +93,13 @@ async def info_4(message: types.Message, state: FSMContext):
                     if message.text == "Вывести все!":
                         f = True
                     elif message.text == "Вывести олимпиады, входящие в РСОШ!":
-                        f = name_olimpiads[k].strip() in subjects_rsosh[yt.lower().capitalize()]
+                        f = name_olimpiads[k].strip() in subjects_rsosh[sa[i].lower().capitalize()]
                         count_1 += 1
 
                     if f is True:
-                        data = datetime.datetime.strptime(''.join(dates[k].split("-")), '%Y%m%d').date()
-                        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
-                        if data <= now:
+                        if datetime.datetime.strptime(''.join(dates[k].split("-")),
+                                                      '%Y%m%d').date() <= datetime.datetime.strptime(
+                            datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date():
                             await del_olympic(information_olimpiads[k])
                             await del_olympic_in_olympiads_parsing(information_olimpiads[k])
                         else:
@@ -134,7 +133,6 @@ async def info_4(message: types.Message, state: FSMContext):
                                      reply_markup=ReplyKeyboardRemove())
 
         except Exception as ex:
-            print(ex)
             await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
                                  "напишите нам в поддержку и мы обязательно ее решим.")
 
