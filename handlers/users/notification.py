@@ -16,6 +16,15 @@ from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notif
     del_olympic, del_olympic_in_olympiads_parsing, select_yes_or_no_in_notifications
 
 
+async def clear():
+    global name_olimpiads, information_olimpiads, data_start, ht, yt, rt, gen, e, a
+    e, a = 0, 0
+    name_olimpiads, information_olimpiads, data_start, gen = [], [], [], []
+    ht = ''
+    yt = ''
+    rt = ''
+
+
 @dp.message_handler(Command("notification"))
 async def notification(message: types.Message):
     if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
@@ -60,8 +69,6 @@ async def notification_4(message: types.Message, state: FSMContext):
         ht = sa[i]
         yt = sa[i]
         rt = sa[i]
-        j = 0
-        j += 1
         try:
             if f'{sa[i]}  \n' in lis_of_subjects:
                 if sa[i] in sub:
@@ -86,7 +93,6 @@ async def notification_4(message: types.Message, state: FSMContext):
                     data_start.append(item[2])
 
                 e = 0
-                a = ''
                 flag = False
                 for k in range(len(name_olimpiads)):
                     f = False
@@ -130,12 +136,13 @@ async def notification_4(message: types.Message, state: FSMContext):
                         await message.answer(hbold(f"Подключены уведомления к {word_text_1.capitalize()}!"))
             else:
                 await message.answer(f"Такого предмета не существует, проверьте правильность написания!")
+                await clear()
                 await state.finish()
 
         except Exception as ex:
             await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
                                  "напишите нам в поддержку и мы обязательно ее решим.")
-
+    await clear()
     await state.finish()
 
 
@@ -154,6 +161,7 @@ async def check(dp):
         else:
             if data < now:
                 await del_olympic(dat[i][2])
+    dat = []
 
 
 @dp.message_handler(Text(equals=["ДА!"]))
