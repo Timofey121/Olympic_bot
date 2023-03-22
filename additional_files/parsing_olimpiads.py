@@ -170,7 +170,7 @@ async def subject_to_bd():
                                     else:
                                         flag = True
                                         a = 'yes'
-                                    if (flag is True) or (f is True and flag is False):
+                                    if (flag is False) or (f is True and flag is True):
                                         await add_notification_dates(telegram_id=tg[0], data_olymp=data_start,
                                                                      subject=subjects[i],
                                                                      information=information_about_olimpiad, rsoch=a)
