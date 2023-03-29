@@ -175,10 +175,6 @@ async def answer(message: types.Message, state: FSMContext):
 
     except Exception as ex:
         await state.finish()
-    try:
-        await state.finish()
-    except:
-        pass
 
 
 @dp.message_handler(state=Test.Q_for_admin_5)
@@ -191,7 +187,7 @@ async def block1(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=Test.Q_for_admin_2)
-async def block(message: types.Message, state: FSMContext):
+async def block2(message: types.Message, state: FSMContext):
     try:
         await update_blocked_users(message.text, 'Да')
         await message.answer(
@@ -203,7 +199,7 @@ async def block(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=Test.Q_for_admin_3)
-async def block(message: types.Message, state: FSMContext):
+async def block3(message: types.Message, state: FSMContext):
     try:
         await update_blocked_users(message.text, 'Нет')
         await message.answer(
@@ -214,11 +210,11 @@ async def block(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=Test.Q_for_admin_4)
-async def block(message: types.Message, state: FSMContext):
+async def block4(message: types.Message, state: FSMContext):
     dat = list(await select_all_users())
     for i in range(len(dat)):
         try:
-            await dp.bot.send_message(dat[i][0], message.text)
+            await dp.bot.send_message(f'{dat[i][0]}', message.text)
         except:
             pass
     await state.finish()
