@@ -19,17 +19,11 @@ async def notification(message: types.Message):
         await message.answer('Выберите нужную команду (cм.ниже).', reply_markup=keyboard_4)
         await Test.Q_for_admin_1.set()
     else:
-        text = ("ТАКОЙ КОМАНДЫ НЕТ!",
-                "Список команд: ",
-                "/start - Начать диалог",
-                "/info - Вывести информацию о нужной олимпиаде",
-                "/notification - Подключение уведомлений",
-                "/check_notification - Подключение уведомлений",
-                "/delete_notification - Удаление уведомлений",
-                "/feedback - Оставить отзыв",
-                "/technical_support - Написать в тех поддержку!",
-                "/help - Получить справку",
-                )
+        text = ("ТАКОЙ КОМАНДЫ НЕТ!", "Список команд: ", "/start - Начать диалог",
+                "/info - Вывести информацию о нужной олимпиаде", "/notification - Подключение уведомлений",
+                "/check_notification - Подключение уведомлений", "/delete_notification - Удаление уведомлений",
+                "/feedback - Оставить отзыв", "/technical_support - Написать в тех поддержку!",
+                "/help - Получить справку",)
 
         await message.answer("\n".join(text))
 
@@ -45,8 +39,7 @@ async def answer(message: types.Message, state: FSMContext):
                     g.append(item[0])
                 await message.answer(
                     f"У пользователя {dat[i][1]} подключено {len(await select_data_olimp_use_id(dat[i][0]))} "
-                    f"уведомления к олимпиадам. По предметам: {' '.join(g)}",
-                    reply_markup=ReplyKeyboardRemove())
+                    f"уведомления к олимпиадам. По предметам: {' '.join(g)}", reply_markup=ReplyKeyboardRemove())
             await state.finish()
 
         elif message.text == "Показать полный список пользователей!":
@@ -173,16 +166,19 @@ async def answer(message: types.Message, state: FSMContext):
         elif message.text == 'Количество олимпиад в Базе Данных!':
             try:
                 f = open('additional_files/log.txt').read().split(';')
-                await message.answer(
-                    f'{f[0]}\nПоследние изменения в БД с олимпиадами.\nВ Бд '
-                    f'{list(await count_olympiads())[0][0]} строк!\nВремя выполнения: {f[1]}',
-                    reply_markup=ReplyKeyboardRemove())
+                await message.answer(f'{f[0]}\nПоследние изменения в БД с олимпиадами.\nВ Бд '
+                                     f'{list(await count_olympiads())[0][0]} строк!\nВремя выполнения: {f[1]}',
+                                     reply_markup=ReplyKeyboardRemove())
                 await state.finish()
             except Exception as ex:
                 print(ex)
 
     except Exception as ex:
         await state.finish()
+    try:
+        await state.finish()
+    except:
+        pass
 
 
 @dp.message_handler(state=Test.Q_for_admin_5)
@@ -221,5 +217,8 @@ async def block(message: types.Message, state: FSMContext):
 async def block(message: types.Message, state: FSMContext):
     dat = list(await select_all_users())
     for i in range(len(dat)):
-        await dp.bot.send_message(dat[i][0], message.text)
+        try:
+            await dp.bot.send_message(dat[i][0], message.text)
+        except:
+            pass
     await state.finish()
