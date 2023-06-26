@@ -149,7 +149,6 @@ async def check(dp):
         else:
             if data < now:
                 await del_olympic(dat[i][2])
-    dat = []
 
 
 @dp.message_handler(Text(equals=["ДА!"]))
