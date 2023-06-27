@@ -4,7 +4,6 @@ import datetime
 import sqlite3
 
 import requests
-from aiogram.utils.markdown import hlink, hunderline, hbold
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -16,79 +15,78 @@ from additional_files.dictionary import numbers, months, months2, subjects_rsosh
 
 def connection_to_bd(host, user, passwd, database):
     global connection, cur
-    connection = sqlite3.connect('additional_files/olimpic_bd')
+    connection = sqlite3.connect('/home/timofey/PycharmProjects/SiteForOlimpic/db.sqlite3')
     cur = connection.cursor()
 
 
-async def add_notification_dates(telegram_id, data_olymp, subject, information, rsoch):
+async def add_notification_dates(user, title, start, stage, schedule, site, rsoch, sub):
     connection_to_bd('host', 'user', 'passwd', 'database')
-    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information, rsoch) "
-                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}', '{rsoch}')")
+    cur.execute(f"INSERT INTO olympic_notificationdates (user, title, start, stage, schedule, site, rsoch, sub_id) "
+                f"VALUES('{user}', '{title}', '{start}', '{stage}', '{schedule}', '{site}', '{rsoch}', '{sub}')")
     connection.commit()
     connection.close()
 
 
-async def select_yes_or_no_in_notifications(telegram_id, information):
+async def select_yes_or_no_in_notifications(user, title, start, stage, schedule, site, rsoch, sub):
     connection_to_bd('host', 'user', 'passwd', 'database')
     cur.execute(
-        f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}' AND information='{information}'")
+        f"SELECT start FROM olympic_notificationdates WHERE user='{user}' AND title='{title}' AND start='{start}'"
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
     rows = cur.fetchall()
     connection.close()
     return rows
 
 
-async def select_info(subject):
+async def select_info(sub):
     connection_to_bd('host', 'user', 'passwd', 'database')
-    cur.execute(f"SELECT telegram_id FROM notification_dates WHERE subject='{subject}'")
+    cur.execute(f"SELECT user FROM olympic_notificationdates WHERE sub_id='{sub}'")
     rows = cur.fetchall()
     connection.close()
     return rows
 
 
-async def select(telegram_id, subject):
+async def select_sub_id(sub):
     connection_to_bd('host', 'user', 'passwd', 'database')
     cur.execute(
-        f"SELECT rsoch FROM notification_dates WHERE telegram_id='{telegram_id}' AND subject='{subject}'")
+        f"SELECT id FROM olympic_subjects WHERE subject='{sub}'")
     rows = cur.fetchall()
     connection.close()
     return rows
 
 
-async def add_subject(subject, title, information, start):
+async def select(user, sub):
     connection_to_bd('host', 'user', 'passwd', 'database')
-    cur.execute(f"INSERT INTO olympiads (subject, title, information, start) VALUES ('{subject}', '{title}', "
-                f"'{information}', '{start}')")
+    cur.execute(
+        f"SELECT rsoch FROM olympic_notificationdates WHERE user='{user}' AND sub_id='{sub}'")
+    rows = cur.fetchall()
+    connection.close()
+    return rows
+
+
+async def add_subject(title, start, stage, schedule, site, rsoch, sub):
+    connection_to_bd('host', 'user', 'passwd', 'database')
+    cur.execute(f"INSERT INTO olympic_olympiads (title, start, stage, schedule, site, rsoch, sub_id) "
+                f"VALUES('{title}', '{start}', '{stage}', '{schedule}', '{site}', '{rsoch}', {sub})")
     connection.commit()
     connection.close()
 
 
-async def delete_subject(subject):
+async def delete_subject(sub):
     connection_to_bd('host', 'user', 'passwd', 'database')
-    cur.execute(f"DELETE FROM olympiads WHERE subject = '{subject}'")
+    cur.execute(f"DELETE FROM olympic_olympiads WHERE sub_id = '{sub}'")
     connection.commit()
     connection.close()
-
-
-async def clear():
-    global information_about_olimpiad, data_start, gen, e, a, count, count_1, soup, URL, data_start1, subjects, step, \
-        src, req, url, fg, data, now
-    e, a, count, count_1 = 0, 0, 0, 0
-    data_start, gen = [], []
-    soup, data_start1, URL, information_about_olimpiad, step = '', '', '', '', ''
-    fg, src, req, url = '', '', '', ''
-    data = now = ''
 
 
 async def subject_to_bd():
-    global information_about_olimpiad, data_start, gen, e, a, count, count_1, soup, URL, data_start1, subjects, step, \
-        src, req, url, fg, data, now
     subjects = 'Информатика, Математика, Физика, Химия, Биология, География, История, Обществознание, Право, ' \
                'Экономика, Русский язык, Литература, Английский язык, ' \
                'Французский язык, Немецкий язык, Астрономия, Робототехника, ' \
                'Технология, Искусство, Черчение, Психология'.split(', ')
     for i in range(len(subjects)):
         try:
-            await delete_subject(subject=subjects[i])
+            sub_id = int(list(await select_sub_id(sub=subjects[i]))[0][0])
+            await delete_subject(sub=sub_id)
             vdisplay = Xvfb()
             vdisplay.start()
             data_start = ''
@@ -147,39 +145,39 @@ async def subject_to_bd():
 
                                 data_start = f"{data_start1[-1].strip()}-{months[item2.strip()]}-" \
                                              f"{('0' * (2 - len(data_start1[0].strip())))}{data_start1[0].split('-')[0].strip()}"
-
-                        information_about_olimpiad = (f"{hunderline(title)}.  \n"
-                                                      f"Этап олимпиады - {hbold(step)} \n"
-                                                      f"{data_start} \n"
-                                                      f"Расписание можете посмотреть {hlink(title='ТУТ!', url=fg)}\n"
-                                                      f"Сайт этой олимпиады Вы можете посмотреть"
-                                                      f"{hlink(title='ТУТ!', url=href_olimp)}  \n")
+                        start = data_start.split('-')
+                        try:
+                            if len(start[-1]) < 2:
+                                start[-1] = '0' + start[-1]
+                        except Exception as ex:
+                            pass
+                        start.reverse()
+                        start = '-'.join(start)
+                        stage = step
+                        schedule = fg
+                        site = href_olimp
                         data = datetime.datetime.strptime(''.join(data_start.split("-")), '%Y%m%d').date()
                         now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
                         if data > now:
-                            await add_subject(subject=subjects[i], title=title, information=information_about_olimpiad,
-                                              start=data_start.strip().split(' - ')[0].replace('-До', ''))
-
-                            gen = set(list(await select_info(subjects[i])))
+                            f = (title in subjects_rsosh[subjects[i].lower().capitalize()])
+                            await add_subject(title, start, stage, schedule, site, f, sub_id)
+                            gen = set(list(await select_info(sub_id)))
                             for tg in gen:
-                                if len(await select_yes_or_no_in_notifications(tg[0], information_about_olimpiad)) == 0:
-                                    f = (title in subjects_rsosh[subjects[i].lower().capitalize()])
-                                    if 'no' in str(list(await select(tg[0], subjects[i]))[0]):
+                                if len(await select_yes_or_no_in_notifications(tg[0], title, start, stage, schedule,
+                                                                               site, f, sub_id)) == 0:
+                                    if 'no' in str(list(await select(tg[0], sub_id))[0]):
                                         flag = False
                                         a = 'no'
                                     else:
                                         flag = True
                                         a = 'yes'
                                     if (flag is False) or (f is True and flag is True):
-                                        await add_notification_dates(telegram_id=tg[0], data_olymp=data_start,
-                                                                     subject=subjects[i],
-                                                                     information=information_about_olimpiad, rsoch=a)
-
+                                        await add_notification_dates(tg[0], title, start, stage, schedule, site, f,
+                                                                     sub_id)
                 except Exception as ex:
                     pass
         except Exception as ex:
             pass
-    await clear()
 
 
 async def main():
