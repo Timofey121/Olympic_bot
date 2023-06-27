@@ -9,6 +9,7 @@ async def set_default_commands(dp):
             types.BotCommand("check_notification", "Вывести список подключенных уведомлений"),
             types.BotCommand("notification", "Подключение уведомлений"),
             types.BotCommand("delete_notification", "Удаление уведомлений"),
+            types.BotCommand("secrettoken", "Получить Секретный Токен для синхронизации сайта и Телеграмм бота"),
             types.BotCommand("feedback", "Оставить отзыв"),
             types.BotCommand("technical_support", "Написать в тех поддержку!"),
         ]

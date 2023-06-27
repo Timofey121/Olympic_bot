@@ -12,6 +12,7 @@ async def bot_echo(message: types.Message):
             "/notification - Подключение уведомлений",
             "/check_notification - Просмотр подключенных уведомлений",
             "/delete_notification - Удаление уведомлений",
+            "/secrettoken - Получить Секретный Токен для синхронизации сайта и Телеграмм бота",
             "/feedback - Оставить отзыв",
             "/technical_support - Написать в тех поддержку!",
             )
