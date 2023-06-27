@@ -5,21 +5,22 @@ import sqlite3
 def main():
     global con, cur
 
-    con = sqlite3.connect('additional_files/olimpic_bd')
+    con = sqlite3.connect('/home/timofey/PycharmProjects/SiteForOlimpic/db.sqlite3')
     cur = con.cursor()
 
 
 async def add_user(telegram_id, full_name, blocked, data_registration):
     main()
     cur.execute(
-        f"INSERT INTO registration (telegram_id, full_name, blocked, data_registration) VALUES('{telegram_id}', '{full_name}', '{blocked}', '{data_registration}')")
+        f"INSERT INTO olympic_registrationtelegram (telegram_id, full_name, blocked, data_registration) "
+        f"VALUES('{telegram_id}', '{full_name}', '{blocked}', '{data_registration}')")
     con.commit()
     con.close()
 
 
 async def select_all_users():
     main()
-    cur.execute(f"SELECT * FROM registration WHERE blocked='Нет'")
+    cur.execute(f"SELECT * FROM olympic_registrationtelegram WHERE blocked=1")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -27,7 +28,7 @@ async def select_all_users():
 
 async def subscriber_exists(telegram_id):
     main()
-    cur.execute(f"SELECT * FROM registration WHERE telegram_id='{telegram_id}'")
+    cur.execute(f"SELECT * FROM olympic_registrationtelegram WHERE telegram_id='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -35,7 +36,7 @@ async def subscriber_exists(telegram_id):
 
 async def all_feedback():
     main()
-    cur.execute(f"SELECT * FROM feedback")
+    cur.execute(f"SELECT * FROM olympic_feedback")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -43,7 +44,7 @@ async def all_feedback():
 
 async def count_users():
     main()
-    cur.execute(f"SELECT COUNT(*) FROM registration WHERE blocked='Нет'")
+    cur.execute(f"SELECT COUNT(*) FROM olympic_registrationtelegram WHERE blocked=0")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -51,37 +52,38 @@ async def count_users():
 
 async def count_olympiads():
     main()
-    cur.execute(f"SELECT COUNT(*) FROM olympiads")
+    cur.execute(f"SELECT COUNT(*) FROM olympic_olympiads")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def add_user_feedback(telegram_id, feedback):
+async def add_user_feedback(telegram_id, olympic_feedback):
     main()
-    cur.execute(f"INSERT INTO feedback (telegram_id, feedback) VALUES('{telegram_id}', '{feedback}')")
+    cur.execute(
+        f"INSERT INTO olympic_feedback (user, feedback) VALUES('{telegram_id}', '{olympic_feedback}')")
     con.commit()
     con.close()
 
 
 async def add_user_tech(telegram_id, help):
     main()
-    cur.execute(f"INSERT INTO technical_support (telegram_id, help) VALUES('{telegram_id}', '{help}')")
+    cur.execute(f"INSERT INTO olympic_technicalsupport (user, help) VALUES('{telegram_id}', '{help}')")
     con.commit()
     con.close()
 
 
-async def add_notification_dates(telegram_id, data_olymp, subject, information, rsoch):
+async def add_notification_dates(user, title, start, stage, schedule, site, rsoch, sub):
     main()
-    cur.execute(f"INSERT INTO notification_dates (telegram_id, data_olymp, subject, information, rsoch) "
-                f"VALUES('{telegram_id}', '{data_olymp}', '{subject}', '{information}', '{rsoch}')")
+    cur.execute(f"INSERT INTO olympic_notificationdates (user, title, start, stage, schedule, site, rsoch, sub_id) "
+                f"VALUES('{user}', '{title}', '{start}', '{stage}', '{schedule}', '{site}', '{rsoch}', '{sub}')")
     con.commit()
     con.close()
 
 
 async def check_blocked(telegram_id):
     main()
-    cur.execute(f"SELECT blocked FROM registration WHERE telegram_id='{telegram_id}'")
+    cur.execute(f"SELECT blocked FROM olympic_registrationtelegram WHERE telegram_id='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -90,30 +92,32 @@ async def check_blocked(telegram_id):
 async def update_blocked_users(telegram_id, blocked):
     main()
     cur.execute(
-        f"UPDATE registration SET blocked='{blocked}' WHERE telegram_id='{telegram_id}'")
+        f"UPDATE olympic_registrationtelegram SET blocked='{blocked}' WHERE telegram_id='{telegram_id}'")
     con.commit()
     con.close()
 
 
 async def select_blocked_users():
     main()
-    cur.execute(f"SELECT * FROM registration WHERE blocked='Да'")
+    cur.execute(f"SELECT * FROM olympic_registrationtelegram WHERE blocked=0")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def information_about_olympiads(subject):
+async def information_about_olympiads(sub_id):
     main()
-    cur.execute(f"SELECT title, information FROM olympiads WHERE subject='{subject}'")
+    cur.execute(
+        f"SELECT title, start, stage, schedule, site, rsoch, sub_id FROM olympic_olympiads WHERE sub_id='{sub_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def data_olympiads(subject):
+async def data_olympiads(sub_id):
     main()
-    cur.execute(f"SELECT title, information, start FROM olympiads WHERE subject='{subject}'")
+    cur.execute(
+        f"SELECT title, stage, schedule, site, rsoch, sub_id, start FROM olympic_olympiads WHERE sub_id='{sub_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -121,24 +125,25 @@ async def data_olympiads(subject):
 
 async def select_data_olimp_use_id(telegram_id):
     main()
-    cur.execute(f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}'")
+    cur.execute(f"SELECT start FROM olympic_notificationdates WHERE telegram_id='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def select_yes_or_no_in_notifications(telegram_id, information):
+async def select_yes_or_no_in_notifications(user, title, start, stage, schedule, site, rsoch, sub):
     main()
     cur.execute(
-        f"SELECT data_olymp FROM notification_dates WHERE telegram_id='{telegram_id}' AND information='{information}'")
+        f"SELECT start FROM olympic_notificationdates WHERE user='{user}' AND title='{title}' AND start='{start}'"
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def select_info(subject):
+async def select_info(sub_id):
     main()
-    cur.execute(f"SELECT telegram_id FROM notification_dates WHERE subject='{subject}'")
+    cur.execute(f"SELECT telegram_id FROM olympic_notificationdates WHERE sub_id='{sub_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -146,7 +151,7 @@ async def select_info(subject):
 
 async def select_subjects_olimp_use_id(telegram_id):
     main()
-    cur.execute(f"SELECT subject FROM notification_dates WHERE telegram_id='{telegram_id}'")
+    cur.execute(f"SELECT sub_id FROM olympic_notificationdates WHERE user='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -154,49 +159,53 @@ async def select_subjects_olimp_use_id(telegram_id):
 
 async def select_data_sub_info(telegram_id):
     main()
-    cur.execute(f"SELECT data_olymp, subject, information FROM notification_dates WHERE telegram_id='{telegram_id}'")
+    cur.execute(
+        f"SELECT user, title, start, stage, schedule, site, rsoch, sub_id FROM olympic_notificationdates "
+        f"WHERE user='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def select(telegram_id, subject):
+async def select(telegram_id, sub_id):
     main()
     cur.execute(
-        f"SELECT rsoch FROM notification_dates WHERE telegram_id='{telegram_id}' AND subject='{subject}'")
+        f"SELECT rsoch FROM olympic_notificationdates WHERE user='{telegram_id}' AND sub_id='{sub_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def select_data_olimp_use_subject(subject):
+async def select_data_olimp_use_subject(sub_id):
     main()
-    cur.execute(f"SELECT data_olymp FROM notification_dates WHERE subject='{subject}'")
+    cur.execute(f"SELECT start FROM olympic_notificationdates WHERE sub_id='{sub_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def del_data_in_olimpic(telegram_id, subject):
+async def del_data_in_olimpic(telegram_id, sub_id):
     main()
     cur.execute(
-        f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND subject = '{subject}'")
+        f"DELETE FROM olympic_notificationdates WHERE user = '{telegram_id}' AND sub_id = '{sub_id}'")
     con.commit()
     con.close()
 
 
-async def del_olympic(information):
+async def del_olympic(title, start, stage, schedule, site, rsoch, sub):
     main()
     cur.execute(
-        f"DELETE FROM notification_dates WHERE  information = '{information}'")
+        f"DELETE FROM olympic_notificationdates WHERE title='{title}' AND start='{start}'"
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
     con.commit()
     con.close()
 
 
-async def del_olympic_in_olympiads_parsing(information):
+async def del_olympic_in_olympiads_parsing(title, start, stage, schedule, site, rsoch, sub):
     main()
     cur.execute(
-        f"DELETE FROM olympiads WHERE  information = '{information}'")
+        f"DELETE FROM olympic_olympiads WHERE title='{title}' AND start='{start}'"
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
     con.commit()
     con.close()
 
@@ -204,7 +213,7 @@ async def del_olympic_in_olympiads_parsing(information):
 async def del_feedback():
     main()
     cur.execute(
-        f"DELETE FROM feedback")
+        f"DELETE FROM olympic_feedback")
     con.commit()
     con.close()
 
@@ -212,15 +221,16 @@ async def del_feedback():
 async def del_notification():
     main()
     cur.execute(
-        f"DELETE FROM notification_dates")
+        f"DELETE FROM olympic_notificationdates")
     con.commit()
     con.close()
 
 
-async def del_notif_in_olimpic(telegram_id, information):
+async def del_notif_in_olimpic(telegram_id, title, start, stage, schedule, site, rsoch, sub):
     main()
     cur.execute(
-        f"DELETE FROM notification_dates WHERE telegram_id = '{telegram_id}' AND information = '{information}'")
+        f"DELETE FROM olympic_notificationdates WHERE user = '{telegram_id}' AND title='{title}' AND start='{start}'"
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
     con.commit()
     con.close()
 
@@ -228,14 +238,14 @@ async def del_notif_in_olimpic(telegram_id, information):
 async def del_tech(tag, help):
     main()
     cur.execute(
-        f"DELETE FROM technical_support WHERE telegram_id = '{tag}' AND help = '{help}'")
+        f"DELETE FROM olympic_technicalsupport WHERE user = '{tag}' AND help = '{help}'")
     con.commit()
     con.close()
 
 
 async def all_tech_failed():
     main()
-    cur.execute(f"SELECT telegram_id, help FROM technical_support")
+    cur.execute(f"SELECT user, help FROM olympic_technicalsupport")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -243,15 +253,7 @@ async def all_tech_failed():
 
 async def select_data_infor_id():
     main()
-    cur.execute(f"SELECT telegram_id, data_olymp, information FROM notification_dates")
-    rows = cur.fetchall()
-    con.close()
-    return rows
-
-
-async def subscribe_payment(telegram_id):
-    main()
-    cur.execute(f"SELECT data FROM payment WHERE telegram_id='{telegram_id}'")
+    cur.execute(f"SELECT user, title, start, stage, schedule, site, rsoch, sub_id FROM olympic_notificationdates")
     rows = cur.fetchall()
     con.close()
     return rows

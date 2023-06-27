@@ -16,7 +16,7 @@ from utils.db_api.PostgreSQL import select_data_olimp_use_id, subscriber_exists,
 
 @dp.message_handler(Command("delete_notification"))
 async def del_notification(message: types.Message):
-    if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
+    if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer('Выберите способ удаления уведомлений(cм.ниже).', reply_markup=keyboard_3)
         await Test.Q_for_delete_notification_1.set()
     else:

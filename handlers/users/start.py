@@ -22,7 +22,7 @@ async def bot_start(message: types.Message):
             data_registration = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'),
                                                            '%Y%m%d').date()
             await add_user(telegram_id=str(message.from_user.id), full_name=message.from_user.full_name,
-                           blocked="Нет", data_registration=data_registration)
+                           blocked=0, data_registration=data_registration)
             for admin in ADMINS:
                 try:
                     await dp.bot.send_message(admin,
@@ -38,5 +38,4 @@ async def bot_start(message: types.Message):
                 except:
                     pass
     except Exception as ex:
-        print(ex)
         pass

@@ -7,7 +7,7 @@ from utils.db_api.PostgreSQL import subscriber_exists
 
 @dp.message_handler(Command("creator"))
 async def bot_help(message: types.Message):
-    if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
+    if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         text = ("Об авторе в Телеграмме -> @My_IT_RESUME_bot",
                 "GitHub -> https://github.com/Timofey121"
                 )

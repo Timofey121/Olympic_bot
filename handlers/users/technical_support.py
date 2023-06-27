@@ -13,7 +13,7 @@ from utils.db_api.PostgreSQL import add_user_tech, subscriber_exists
 
 @dp.message_handler(Command("technical_support"), state=None)
 async def technical_support(message: types.Message):
-    if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
+    if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         if message.from_user.username is None:
             await message.answer(f"Привет, к сожалению, мы не сможем ответить Вам, т.к. у Вас нет имени пользователя!"
                                  f"Укажите пожалуйста его в настройках, чтобы мы смогли с Вами связаться!")

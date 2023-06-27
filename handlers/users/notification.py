@@ -18,7 +18,7 @@ from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notif
 
 @dp.message_handler(Command("notification"))
 async def notification(message: types.Message):
-    if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
+    if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer(
             f"{hbold('Введите предмет(ы)')} информацию о олимпиаде(ах) Вы хотите знать"
             f"(C большой буквы, через запятую)!\n \n"

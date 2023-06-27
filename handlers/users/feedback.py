@@ -13,7 +13,7 @@ from utils.db_api.PostgreSQL import add_user_feedback, subscriber_exists
 
 @dp.message_handler(Command("feedback"), state=None)
 async def feedback(message: types.Message):
-    if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
+    if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer("Привет ещё раз, мы очень рады, что Вы решили оставить отзыв! Напишите Ваш отзыв.")
         await Test.Q_for_feedback.set()
     else:

@@ -16,8 +16,7 @@ async def on_startup(dispatcher):
 
 async def test(dispatcher):
     while True:
-        if datetime.datetime.now().date() == datetime.datetime(datetime.datetime.now().year, 9, 1).date():
-            await del_notification()
+        await del_notification()
         try:
             await check(dispatcher)
         except Exception as ex:
@@ -28,7 +27,7 @@ async def test(dispatcher):
 async def main():
     for item in ADMINS:
         await dp.bot.send_message(item, 'Бот запущен!')
-    asyncio.create_task(test(dp))
+    # asyncio.create_task(test(dp))
     await dp.start_polling(on_startup(dp))
 
 

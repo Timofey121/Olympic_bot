@@ -6,9 +6,10 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command, Text
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.utils.markdown import hbold
+from aiogram.utils.markdown import hbold, hunderline, hlink
 
 from additional_files.dictionary import sub, lis_of_subjects, subjects_rsosh
+from additional_files.parsing_olimpiads import select_sub_id
 from handlers.users.notification import notification
 from keyboards.default.all_or_choice import keyboard_1
 from keyboards.default.connect_or_no import keyboard
@@ -20,7 +21,7 @@ from utils.db_api.PostgreSQL import subscriber_exists, information_about_olympia
 
 @dp.message_handler(Command("info"), state=None)
 async def info(message: types.Message):
-    if str(list(await subscriber_exists(message.from_user.id))[0][2]) != "Да":
+    if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer(
             f"{hbold('Введите предмет(ы)')} интересующих Вас олимпиады! (c большой буквы, через запятую)!\n \n"
             'Список доступных предметов, по которым мы предоставляем информацию об олимпиадах:\n',
@@ -64,7 +65,6 @@ async def info_4(message: types.Message, state: FSMContext):
                 else:
                     morse = pymorphy2.MorphAnalyzer()
                     ji = morse.parse(sa[i].strip())[0]
-
                     word_text = ji.inflect({'loct'}).word
 
                 await message.answer(
@@ -72,16 +72,29 @@ async def info_4(message: types.Message, state: FSMContext):
                           f"Это займет около 2х минут"),
                     reply_markup=ReplyKeyboardRemove())
 
-                gen = list(await information_about_olympiads(str(sa[i]).lower().capitalize()))
+                sub_id = int(list(await select_sub_id(sub=str(sa[i]).lower().capitalize()))[0][0])
+                gen = list(await information_about_olympiads(sub_id))
 
                 name_olimpiads = []
                 information_olimpiads = []
+                stages, schedules, sites, rsochs, sub_ids = [], [], [], [], []
                 dates = []
 
                 for item in gen:
-                    name_olimpiads.append(item[0])
-                    information_olimpiads.append(item[1])
-                    dates.append(str(item[1].split('\n')[2]).strip())
+                    title, start, stage, schedule, site = item[0], item[1], item[2], item[3], item[4]
+                    stages.append(title)
+                    schedules.append(title)
+                    sites.append(title)
+                    rsochs.append(title)
+                    sub_ids.append(title)
+                    information_about_olimpiad = (f"{hunderline(title)}.  \n"
+                                                  f"Этап олимпиады - {hbold(stage)} \n"
+                                                  f"{start} \n"
+                                                  f"Расписание можете посмотреть {hlink(title='ТУТ!', url=schedule)}\n"
+                                                  f"Сайт этой олимпиады Вы можете посмотреть"
+                                                  f"{hlink(title='ТУТ!', url=site)}\n")
+                    information_olimpiads.append(information_about_olimpiad)
+                    dates.append(start)
 
                 count = 0
                 count_1 = 0
@@ -100,8 +113,10 @@ async def info_4(message: types.Message, state: FSMContext):
                         if datetime.datetime.strptime(''.join(dates[k].split("-")),
                                                       '%Y%m%d').date() <= datetime.datetime.strptime(
                             datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date():
-                            await del_olympic(information_olimpiads[k])
-                            await del_olympic_in_olympiads_parsing(information_olimpiads[k])
+                            await del_olympic(name_olimpiads[k], dates[k], stages[k], schedules[k], sites[k], rsochs[k],
+                                              sub_ids[k])
+                            await del_olympic_in_olympiads_parsing(name_olimpiads[k], dates[k], stages[k], schedules[k],
+                                                                   sites[k], rsochs[k], sub_ids[k])
                         else:
                             count += 1
                             flag = True
