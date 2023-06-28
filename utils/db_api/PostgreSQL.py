@@ -42,6 +42,31 @@ async def all_feedback():
     return rows
 
 
+async def check_secret_token(secret_token):
+    main()
+    cur.execute(f"SELECT telegram_id, secret_token FROM olympic_secrettoken WHERE secret_token='{secret_token}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def secret_token_exists(telegram_id):
+    main()
+    cur.execute(f"SELECT * FROM olympic_secrettoken WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def add_token(telegram_id, token):
+    main()
+    cur.execute(
+        f"INSERT INTO olympic_secrettoken (telegram_id, secret_token) "
+        f"VALUES('{telegram_id}', '{token}')")
+    con.commit()
+    con.close()
+
+
 async def count_users():
     main()
     cur.execute(f"SELECT COUNT(*) FROM olympic_registrationtelegram WHERE blocked=0")
@@ -117,7 +142,7 @@ async def information_about_olympiads(sub_id):
 async def data_olympiads(sub_id):
     main()
     cur.execute(
-        f"SELECT title, stage, schedule, site, rsoch, sub_id, start FROM olympic_olympiads WHERE sub_id='{sub_id}'")
+        f"SELECT title, start, stage, schedule, site, rsoch, sub_id FROM olympic_olympiads WHERE sub_id='{sub_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -125,7 +150,7 @@ async def data_olympiads(sub_id):
 
 async def select_data_olimp_use_id(telegram_id):
     main()
-    cur.execute(f"SELECT start FROM olympic_notificationdates WHERE telegram_id='{telegram_id}'")
+    cur.execute(f"SELECT start FROM olympic_notificationdates WHERE user='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -135,7 +160,7 @@ async def select_yes_or_no_in_notifications(user, title, start, stage, schedule,
     main()
     cur.execute(
         f"SELECT start FROM olympic_notificationdates WHERE user='{user}' AND title='{title}' AND start='{start}'"
-        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id={sub}")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -143,7 +168,15 @@ async def select_yes_or_no_in_notifications(user, title, start, stage, schedule,
 
 async def select_info(sub_id):
     main()
-    cur.execute(f"SELECT telegram_id FROM olympic_notificationdates WHERE sub_id='{sub_id}'")
+    cur.execute(f"SELECT telegram_id FROM olympic_notificationdates WHERE sub_id={sub_id}")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select_sub(sub_id):
+    main()
+    cur.execute(f"SELECT subject FROM olympic_subjects WHERE id={sub_id}")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -161,7 +194,7 @@ async def select_data_sub_info(telegram_id):
     main()
     cur.execute(
         f"SELECT user, title, start, stage, schedule, site, rsoch, sub_id FROM olympic_notificationdates "
-        f"WHERE user='{telegram_id}'")
+        f"WHERE user='{telegram_id}' ORDER BY sub_id")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -176,6 +209,15 @@ async def select(telegram_id, sub_id):
     return rows
 
 
+async def select_user(telegram_id):
+    main()
+    cur.execute(
+        f"SELECT * FROM olympic_usernameandtelegramid WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
 async def select_data_olimp_use_subject(sub_id):
     main()
     cur.execute(f"SELECT start FROM olympic_notificationdates WHERE sub_id='{sub_id}'")
@@ -184,10 +226,10 @@ async def select_data_olimp_use_subject(sub_id):
     return rows
 
 
-async def del_data_in_olimpic(telegram_id, sub_id):
+async def del_data_in_olimpic(user, sub_id):
     main()
     cur.execute(
-        f"DELETE FROM olympic_notificationdates WHERE user = '{telegram_id}' AND sub_id = '{sub_id}'")
+        f"DELETE FROM olympic_notificationdates WHERE user = '{user}' AND sub_id = '{sub_id}'")
     con.commit()
     con.close()
 
@@ -196,7 +238,7 @@ async def del_olympic(title, start, stage, schedule, site, rsoch, sub):
     main()
     cur.execute(
         f"DELETE FROM olympic_notificationdates WHERE title='{title}' AND start='{start}'"
-        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id={sub}")
     con.commit()
     con.close()
 
@@ -205,7 +247,7 @@ async def del_olympic_in_olympiads_parsing(title, start, stage, schedule, site, 
     main()
     cur.execute(
         f"DELETE FROM olympic_olympiads WHERE title='{title}' AND start='{start}'"
-        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
+        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id={sub}")
     con.commit()
     con.close()
 
@@ -226,11 +268,20 @@ async def del_notification():
     con.close()
 
 
-async def del_notif_in_olimpic(telegram_id, title, start, stage, schedule, site, rsoch, sub):
+async def select_sub_id(sub):
+    main()
+    cur.execute(
+        f"SELECT id FROM olympic_subjects WHERE subject='{sub}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def del_notif_in_olimpic(telegram_id, title, start, stage, site, sub):
     main()
     cur.execute(
         f"DELETE FROM olympic_notificationdates WHERE user = '{telegram_id}' AND title='{title}' AND start='{start}'"
-        f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id='{sub}'")
+        f" AND stage='{stage}'  AND site='{site}' AND sub_id={sub}")
     con.commit()
     con.close()
 

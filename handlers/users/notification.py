@@ -1,6 +1,5 @@
 import datetime
 
-import pymorphy2
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
@@ -8,12 +7,12 @@ from aiogram.dispatcher.filters import Text
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold
 
-from additional_files.dictionary import lis_of_subjects, sub, subjects_rsosh
+from additional_files.dictionary import lis_of_subjects
 from keyboards.default.connect_all_or_choice import keyboard_1
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notification_dates, select_data_infor_id, \
-    del_olympic, del_olympic_in_olympiads_parsing, select_yes_or_no_in_notifications
+    del_olympic, del_olympic_in_olympiads_parsing, select_yes_or_no_in_notifications, select_sub_id
 
 
 @dp.message_handler(Command("notification"))
@@ -31,7 +30,6 @@ async def notification(message: types.Message):
                              f"{hbold('Пример ввода:')}\n"
                              "1) География\n"
                              "2) География, Математика")
-        abc = []
         await Test.Q_for_notification.set()
     else:
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
@@ -60,52 +58,57 @@ async def notification_4(message: types.Message, state: FSMContext):
     for i in range(len(sa)):
         try:
             if f'{sa[i]}  \n' in lis_of_subjects:
-                if sa[i] in sub:
-                    word_text_1 = sub[sa[i]]
-                else:
-                    morse = pymorphy2.MorphAnalyzer()
-                    ji = morse.parse(sa[i].strip())[0]
-                    word_text_1 = ji.inflect({'datv'}).word
+                word_text_1 = sa[i]
+
                 await message.answer(hbold(f"Началось подключение уведомлений к {word_text_1.capitalize()}!\n"
                                            f"Это займет около 2х минут"),
                                      reply_markup=ReplyKeyboardRemove())
 
-                gen = list(await data_olympiads(str(sa[i]).lower().capitalize()))
+                sub_id = int(list(await select_sub_id(sub=str(sa[i]).lower().capitalize()))[0][0])
+                gen = list(await data_olympiads(sub_id))
 
                 name_olimpiads = []
-                information_olimpiads = []
-                data_start = []
+                stages, schedules, sites, rsochs, sub_ids = [], [], [], [], []
+                dates = []
 
                 for item in gen:
-                    name_olimpiads.append(item[0])
-                    information_olimpiads.append(item[1])
-                    data_start.append(item[2])
+                    title, start, stage, schedule, site, rsoch = item[0], item[1], item[2], item[3], item[4], item[5]
+                    stages.append(stage)
+                    schedules.append(schedules)
+                    sites.append(site)
+                    sub_ids.append(sub_id)
+                    name_olimpiads.append(title)
+                    rsochs.append(rsoch)
+                    dates.append(start)
 
                 e = 0
                 flag = False
+
                 for k in range(len(name_olimpiads)):
                     f = False
                     if message.text == "Подключить ко всем!":
                         f = True
-                        a = 'no'
                     elif message.text == "Подключить к олимпиадам, входящим в РСОШ!":
-                        if name_olimpiads[k] in subjects_rsosh[sa[i].lower().capitalize()]:
-                            a = 'yes'
+                        if rsochs[k] == 1 or rsochs[k] is True:
                             f = True
 
                     if f is True:
-                        data = datetime.datetime.strptime(''.join(data_start[k].split("-")), '%Y%m%d').date()
-                        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+                        data = datetime.datetime.strptime(''.join(dates[k].split("-")), '%d%m%Y').date()
+                        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%d%m%Y'), '%d%m%Y').date()
                         if data <= now:
-                            await del_olympic(information_olimpiads[k])
-                            await del_olympic_in_olympiads_parsing(information_olimpiads[k])
+                            await del_olympic(name_olimpiads[k], dates[k], stages[k], schedules[k], sites[k], rsochs[k],
+                                              sub_ids[k])
+                            await del_olympic_in_olympiads_parsing(name_olimpiads[k], dates[k], stages[k], schedules[k],
+                                                                   sites[k], rsochs[k], sub_ids[k])
                         else:
                             e += 1
                             flag = True
-                            if len(await select_yes_or_no_in_notifications(answer7, information_olimpiads[k])) == 0:
-                                await add_notification_dates(telegram_id=answer7, data_olymp=data_start[k],
-                                                             subject=sa[i],
-                                                             information=information_olimpiads[k], rsoch=a)
+                            if len(await select_yes_or_no_in_notifications(answer7, name_olimpiads[k], dates[k],
+                                                                           stages[k], schedules[k], sites[k],
+                                                                           rsochs[k], sub_ids[k])) == 0:
+                                await add_notification_dates(answer7, name_olimpiads[k], dates[k],
+                                                             stages[k], schedules[k], sites[k],
+                                                             rsochs[k], sub_ids[k])
                 if flag is False:
                     await message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
                                          "возможно подключить после  утверждения графика проведения олимпиад "
@@ -125,12 +128,15 @@ async def notification_4(message: types.Message, state: FSMContext):
                     elif message.text == "Подключить ко всем!":
                         await message.answer(hbold(f"Подключены уведомления к {word_text_1.capitalize()}!"))
             else:
-                await message.answer(f"Такого предмета не существует, проверьте правильность написания!")
+                await message.answer(f"Такого предмета не существует, проверьте правильность написания!",
+                                     reply_markup=ReplyKeyboardRemove())
                 await state.finish()
 
         except Exception as ex:
+            print(ex)
             await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
-                                 "напишите нам в поддержку и мы обязательно ее решим.")
+                                 "напишите нам в поддержку и мы обязательно ее решим.",
+                                 reply_markup=ReplyKeyboardRemove())
     await state.finish()
 
 

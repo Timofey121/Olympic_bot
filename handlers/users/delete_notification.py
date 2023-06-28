@@ -1,17 +1,16 @@
 # -*- coding: utf8 -*-
-import pymorphy2
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.utils.markdown import hbold
+from aiogram.utils.markdown import hbold, hlink, hunderline
 
-from additional_files.dictionary import lis_of_subjects, sub
+from additional_files.dictionary import lis_of_subjects
 from keyboards.default.del_subject_or_choice import keyboard_3
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import select_data_olimp_use_id, subscriber_exists, select_data_sub_info, \
-    select_data_olimp_use_subject, del_data_in_olimpic, del_notif_in_olimpic
+    select_data_olimp_use_subject, del_data_in_olimpic, del_notif_in_olimpic, select_sub_id, select_user, select_sub
 
 
 @dp.message_handler(Command("delete_notification"))
@@ -45,29 +44,51 @@ async def del_notification_1(message: types.Message, state: FSMContext):
                 await message.answer(
                     "Перед тем, чтобы удалять уведомления, их надо подключить, для подключения уведомлений "
                     "напишите - '/notification'")
-        except:
+        except Exception as ex:
             await message.answer(
                 "Перед тем, чтобы удалять уведомления, их надо подключить, для подключения уведомлений "
-                "напишите - '/notification'")
+                "напишите - '/notification'", reply_markup=ReplyKeyboardRemove())
     elif message.text == "Удалить выбранные уведомления(по номеру)!":
         await message.answer("Подождите немного! Начался поиск уведомлений!")
         a = list(await select_data_sub_info(telegram_id=message.from_user.id))
+        if len(await select_user(telegram_id=message.from_user.id)) > 0:
+            a += list(await select_data_sub_info(
+                telegram_id=list(await select_user(telegram_id=message.from_user.id))[0][-1]))
         c = [[]]
-        t = 0
+        t, k = 0, 0
+        subs = []
+        b = []
         if len(a) > 0:
             for i in range(len(a)):
-                if a[i][1] in sub:
-                    word_text = sub[a[i][1]]
-                else:
-                    morse = pymorphy2.MorphAnalyzer()
-                    ji = morse.parse(a[i][1].strip())[0]
-                    word_text = ji.inflect({'loct'}).word
-
-                if len(str("\n".join(c[t]))) + len(str(f"{i + 1}) Уведомления подключены к {word_text}\n"
-                                                       f"{str(''.join(a[i][2]))}")) > 4096:
-                    t += 1
-                    c.append([])
-                c[t].append(f"{i + 1}) Уведомления подключены к {word_text.capitalize()}\n{str(''.join(a[i][2]))}")
+                information_about_olimpiad = ''
+                subject = list(await select_sub(int(a[i][-1])))[0][0]
+                information_about_olimpiad += (f"{hunderline(a[i][1])}.  \n"
+                                               f"Начало олимпиады: {hbold(a[i][2])} \n"
+                                               f"Этап олимпиады: {hbold(a[i][3])} \n")
+                i_about_ol = [a[i][1], a[i][2], a[i][3], a[i][-1]]
+                if i_about_ol not in b:
+                    b.append(i_about_ol)
+                    information_about_olimpiad += "Олимпиада "
+                    if a[i][-2] is True or str(a[i][-2]) == '1':
+                        information_about_olimpiad += hbold('Входит в РСОШ')
+                    else:
+                        information_about_olimpiad += hbold('НЕ входит в РСОШ')
+                    information_about_olimpiad += (
+                        f"\nРасписание можете посмотреть {hlink(title='ТУТ!', url=a[i][4])}\n"
+                        f"Сайт этой олимпиады Вы можете посмотреть {hlink(title='ТУТ!', url=a[i][5])}\n")
+                    if len(str(
+                            subject).upper() + f"{k + 1}) Уведомления подключены к \n\n" + information_about_olimpiad
+                           + '\n' + '-' * 54) > 4096:
+                        t += 1
+                        c.append([])
+                    if subject not in subs:
+                        c[t].append('~' * 54)
+                        c[t].append(
+                            f"{hbold(str(subject).upper())}\n\n{k + 1}) Уведомления подключены к \n{information_about_olimpiad}")
+                        subs.append(subject)
+                    else:
+                        c[t].append(f"{k + 1}) Уведомления подключены к \n{information_about_olimpiad}")
+                    k += 1
 
             for i in range(len(c)):
                 await message.answer("\n".join(c[i]))
@@ -90,20 +111,18 @@ async def del_notification_2(message: types.Message, state: FSMContext):
             try:
                 if f'{sa[i]}  \n' in lis_of_subjects:
                     htt = sa[i]
-                    rgt = list(await select_data_olimp_use_subject(str(htt).lower().capitalize()))
+                    sub_id = int(list(await select_sub_id(sub=(str(htt).lower().capitalize())))[0][0])
+                    rgt = list(await select_data_olimp_use_subject(sub_id))
 
-                    if sa[i] in sub:
-                        word_text = sub[sa[i]]
-                    else:
-                        morse = pymorphy2.MorphAnalyzer()
-                        ji = morse.parse(sa[i].strip())[0]
-                        word_text = ji.inflect({'datv'}).word
-
+                    word_text = sa[i]
                     if rgt:
                         await message.answer(
                             hbold(f"Началось отключение уведомлений, подключенных к {word_text.capitalize()}!"))
-                        rt = sa[i]
-                        await del_data_in_olimpic(telegram_id=telegram_id, subject=rt)
+                        await del_data_in_olimpic(user=telegram_id, sub_id=sub_id)
+                        if len(await select_user(telegram_id=message.from_user.id)) > 0:
+                            await del_data_in_olimpic(
+                                user=list(await select_user(telegram_id=message.from_user.id))[0][-1], sub_id=sub_id)
+
                         await message.answer(hbold(f"Отключены уведомления, подключенные к {word_text.capitalize()}!"))
                     else:
                         await message.answer(hbold(f"Уведомления не подключены к {word_text.capitalize()}"))
@@ -119,13 +138,32 @@ async def del_notification_2(message: types.Message, state: FSMContext):
             for i in range(len(sa)):
                 sa[i] = str(sa[i]).lstrip().rstrip()
             a = list(await select_data_sub_info(telegram_id=message.from_user.id))
+            if len(await select_user(telegram_id=message.from_user.id)) > 0:
+                a += list(await select_data_sub_info(
+                    telegram_id=list(await select_user(telegram_id=message.from_user.id))[0][-1]))
+            b = []
             for i in range(len(a)):
+                i_about_ol = [a[i][1], a[i][2], a[i][3], a[i][4], a[i][5], a[i][-1]]
+                if i_about_ol not in b:
+                    b.append(i_about_ol)
+            for i in range(len(b)):
                 if str(int(i + 1)) in sa:
-                    await del_notif_in_olimpic(telegram_id=telegram_id, information=''.join(a[i][2]))
+                    information_about_olimpiad = ''
+                    information_about_olimpiad += (f"{hunderline(b[i][0])}.  \n"
+                                                   f"Начало олимпиады: {hbold(b[i][1])} \n"
+                                                   f"Этап олимпиады: {hbold(b[i][2])} \n")
+                    information_about_olimpiad += "Олимпиада "
+                    information_about_olimpiad += (
+                        f"\nРасписание можете посмотреть {hlink(title='ТУТ!', url=b[i][3])}\n"
+                        f"Сайт этой олимпиады Вы можете посмотреть {hlink(title='ТУТ!', url=b[i][4])}\n")
+                    await del_notif_in_olimpic(telegram_id, b[i][0], b[i][1],
+                                               b[i][2], b[i][4], b[i][5])
+                    if len(await select_user(telegram_id=message.from_user.id)) > 0:
+                        await del_notif_in_olimpic(list(await select_user(telegram_id=message.from_user.id))[0][-1], b[i][0], b[i][1],
+                                                   b[i][2], b[i][4], b[i][5])
                     await message.answer("Уведомления отключены от")
-                    await message.answer(f"{i + 1}) {str(''.join(a[i][2]))}")
+                    await message.answer(f"{i + 1}) {information_about_olimpiad}")
         except Exception as ex:
             await message.answer(f"Проверьте правильность номеров уведомлений, для удаления!")
-            pass
 
     await state.finish()

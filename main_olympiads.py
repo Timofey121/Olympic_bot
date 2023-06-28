@@ -16,18 +16,17 @@ async def on_startup(dispatcher):
 
 async def test(dispatcher):
     while True:
-        await del_notification()
+        await asyncio.sleep(43200)
         try:
             await check(dispatcher)
         except Exception as ex:
             pass
-        await asyncio.sleep(43200)
 
 
 async def main():
     for item in ADMINS:
         await dp.bot.send_message(item, 'Бот запущен!')
-    # asyncio.create_task(test(dp))
+    asyncio.create_task(test(dp))
     await dp.start_polling(on_startup(dp))
 
 

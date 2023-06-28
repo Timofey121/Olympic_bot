@@ -27,7 +27,7 @@ async def feedback_1(message: types.Message, state: FSMContext):
         name = message.from_user.id
         if message.from_user.username is not None:
             name = message.from_user.username
-        await add_user_feedback(feedback=answer, telegram_id=name)
+        await add_user_feedback(olympic_feedback=answer, telegram_id=name)
         for admin in ADMINS:
             try:
                 await dp.bot.send_message(admin,

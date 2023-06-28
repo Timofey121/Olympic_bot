@@ -8,15 +8,14 @@ from aiogram.dispatcher.filters import Command, Text
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hunderline, hlink
 
-from additional_files.dictionary import sub, lis_of_subjects, subjects_rsosh
-from additional_files.parsing_olimpiads import select_sub_id
+from additional_files.dictionary import sub, lis_of_subjects
 from handlers.users.notification import notification
 from keyboards.default.all_or_choice import keyboard_1
 from keyboards.default.connect_or_no import keyboard
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import subscriber_exists, information_about_olympiads, del_olympic, \
-    del_olympic_in_olympiads_parsing
+    del_olympic_in_olympiads_parsing, select_sub_id
 
 
 @dp.message_handler(Command("info"), state=None)
@@ -81,15 +80,16 @@ async def info_4(message: types.Message, state: FSMContext):
                 dates = []
 
                 for item in gen:
-                    title, start, stage, schedule, site = item[0], item[1], item[2], item[3], item[4]
-                    stages.append(title)
-                    schedules.append(title)
-                    sites.append(title)
-                    rsochs.append(title)
-                    sub_ids.append(title)
+                    title, start, stage, schedule, site, rsoch = item[0], item[1], item[2], item[3], item[4], item[5]
+                    stages.append(stage)
+                    schedules.append(schedules)
+                    sites.append(site)
+                    sub_ids.append(sub_id)
+                    name_olimpiads.append(title)
+                    rsochs.append(rsoch)
                     information_about_olimpiad = (f"{hunderline(title)}.  \n"
-                                                  f"Этап олимпиады - {hbold(stage)} \n"
-                                                  f"{start} \n"
+                                                  f"Начало олимпиады: {hbold(start)} \n"
+                                                  f"Этап олимпиады: {hbold(stage)} \n"
                                                   f"Расписание можете посмотреть {hlink(title='ТУТ!', url=schedule)}\n"
                                                   f"Сайт этой олимпиады Вы можете посмотреть"
                                                   f"{hlink(title='ТУТ!', url=site)}\n")
@@ -106,13 +106,13 @@ async def info_4(message: types.Message, state: FSMContext):
                     if message.text == "Вывести все!":
                         f = True
                     elif message.text == "Вывести олимпиады, входящие в РСОШ!":
-                        f = name_olimpiads[k].strip() in subjects_rsosh[sa[i].lower().capitalize()]
+                        f = rsochs[k]
                         count_1 += 1
 
-                    if f is True:
+                    if f is True or f == 1:
                         if datetime.datetime.strptime(''.join(dates[k].split("-")),
-                                                      '%Y%m%d').date() <= datetime.datetime.strptime(
-                            datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date():
+                                                      '%d%m%Y').date() <= datetime.datetime.strptime(
+                            datetime.datetime.today().strftime('%d%m%Y'), '%d%m%Y').date():
                             await del_olympic(name_olimpiads[k], dates[k], stages[k], schedules[k], sites[k], rsochs[k],
                                               sub_ids[k])
                             await del_olympic_in_olympiads_parsing(name_olimpiads[k], dates[k], stages[k], schedules[k],

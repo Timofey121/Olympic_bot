@@ -189,7 +189,7 @@ async def block1(message: types.Message, state: FSMContext):
 @dp.message_handler(state=Test.Q_for_admin_2)
 async def block2(message: types.Message, state: FSMContext):
     try:
-        await update_blocked_users(message.text, 'Да')
+        await update_blocked_users(message.text, 1)
         await message.answer(
             f"Пользователь {list(await subscriber_exists(message.text))[0][1]} -> ID = {message.text} - ЗАБЛОКИРОВАН")
     except Exception as ex:
@@ -201,7 +201,7 @@ async def block2(message: types.Message, state: FSMContext):
 @dp.message_handler(state=Test.Q_for_admin_3)
 async def block3(message: types.Message, state: FSMContext):
     try:
-        await update_blocked_users(message.text, 'Нет')
+        await update_blocked_users(message.text, 0)
         await message.answer(
             f"Пользователь {list(await subscriber_exists(message.text))[0][1]} -> ID = {message.text} - РАЗБЛОКИРОВАН")
     except:
