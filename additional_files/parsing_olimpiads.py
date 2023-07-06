@@ -120,7 +120,7 @@ async def subject_to_bd():
                     req = requests.get(url=url)
                     src = req.text
                     soup = BeautifulSoup(src, "lxml")
-                    title = soup.find_all('title')[0].text.strip().capitalize()
+                    title = soup.find_all('title')[0].text.strip().upper()
 
                     href_olimp = soup.find_all('div', 'contacts')[0].find('a', 'color').get('href')
 
