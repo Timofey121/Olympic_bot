@@ -120,7 +120,7 @@ async def subject_to_bd():
                     req = requests.get(url=url)
                     src = req.text
                     soup = BeautifulSoup(src, "lxml")
-                    title = soup.find_all('title')[0].text.strip()
+                    title = soup.find_all('title')[0].text.strip().capitalize()
 
                     href_olimp = soup.find_all('div', 'contacts')[0].find('a', 'color').get('href')
 
@@ -167,10 +167,8 @@ async def subject_to_bd():
                                                                                site, f, sub_id)) == 0:
                                     if 'no' in str(list(await select(tg[0], sub_id))[0]):
                                         flag = False
-                                        a = 'no'
                                     else:
                                         flag = True
-                                        a = 'yes'
                                     if (flag is False) or (f is True and flag is True):
                                         await add_notification_dates(tg[0], title, start, stage, schedule, site, f,
                                                                      sub_id)

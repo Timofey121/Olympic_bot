@@ -1,10 +1,8 @@
 import asyncio
-import datetime
 
 from data.config import ADMINS
 from handlers.users.notification import check
 from loader import dp
-from utils.db_api.PostgreSQL import del_notification
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
 
@@ -16,11 +14,11 @@ async def on_startup(dispatcher):
 
 async def test(dispatcher):
     while True:
-        await asyncio.sleep(43200)
         try:
             await check(dispatcher)
         except Exception as ex:
             pass
+        await asyncio.sleep(43200)
 
 
 async def main():

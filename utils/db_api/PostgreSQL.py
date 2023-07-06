@@ -308,3 +308,19 @@ async def select_data_infor_id():
     rows = cur.fetchall()
     con.close()
     return rows
+
+
+async def select_tg_or_site(telegram_id):
+    main()
+    cur.execute(f"SELECT telegram_id,blocked FROM olympic_registrationtelegram WHERE telegram_id='{telegram_id}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows
+
+
+async def select_site(user):
+    main()
+    cur.execute(f"SELECT user,email,blocked FROM olympic_registrationsite WHERE user='{user}'")
+    rows = cur.fetchall()
+    con.close()
+    return rows

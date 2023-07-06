@@ -5,14 +5,15 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher.filters import Text
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.utils.markdown import hbold
+from aiogram.utils.markdown import hbold, hunderline, hlink
 
 from additional_files.dictionary import lis_of_subjects
 from keyboards.default.connect_all_or_choice import keyboard_1
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notification_dates, select_data_infor_id, \
-    del_olympic, del_olympic_in_olympiads_parsing, select_yes_or_no_in_notifications, select_sub_id
+    del_olympic, del_olympic_in_olympiads_parsing, select_yes_or_no_in_notifications, select_sub_id, select_tg_or_site, \
+    select_sub, select_user
 
 
 @dp.message_handler(Command("notification"))
@@ -74,7 +75,7 @@ async def notification_4(message: types.Message, state: FSMContext):
                 for item in gen:
                     title, start, stage, schedule, site, rsoch = item[0], item[1], item[2], item[3], item[4], item[5]
                     stages.append(stage)
-                    schedules.append(schedules)
+                    schedules.append(schedule)
                     sites.append(site)
                     sub_ids.append(sub_id)
                     name_olimpiads.append(title)
@@ -143,18 +144,54 @@ async def notification_4(message: types.Message, state: FSMContext):
 async def check(dp):
     dat = list(await select_data_infor_id())
     for i in range(len(dat)):
-        data = datetime.datetime.strptime(''.join(dat[i][1].split("-")), '%Y%m%d').date()
-        now = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'), '%Y%m%d').date()
+        if len(list(await select_tg_or_site(dat[i][0]))) > 0:
+            tg = dat[i][0]
+            subject = list(await select_sub(int(dat[i][7])))[0][0]
+            information_about_olimpiad = (f"{str(subject).upper()}.  \n"
+                                          f"{hunderline(dat[i][1])}.  \n"
+                                          f"Начало олимпиады: {hbold(dat[i][2])} \n"
+                                          f"Этап олимпиады: {hbold(dat[i][3])} \n"
+                                          f"Расписание можете посмотреть {hlink(title='ТУТ!', url=dat[i][4])}\n"
+                                          f"Сайт этой олимпиады Вы можете посмотреть"
+                                          f"{hlink(title='ТУТ!', url=dat[i][5])}\n")
 
-        flag = ((data - now) <= datetime.timedelta(days=2))
-        flag1 = ((data - now) > datetime.timedelta(days=0))
+            data = datetime.datetime.strptime(''.join(dat[i][2].split("-")), '%d%m%Y').date()
+            now = datetime.datetime.strptime(datetime.datetime.today().strftime('%d%m%Y'), '%d%m%Y').date()
 
-        if flag is True and flag1 is True:
-            await dp.bot.send_message(dat[i][0], f"{hbold('НЕ ЗАБУДЬТЕ!')}\n\n"
-                                                 f"{dat[i][2]}")
+            flag = ((data - now) <= datetime.timedelta(days=2))
+            flag1 = ((data - now) > datetime.timedelta(days=0))
+
+            if flag is True and flag1 is True:
+                await dp.bot.send_message(tg, f"{hbold('НЕ ЗАБУДЬТЕ!')}\n\n"
+                                              f"{information_about_olimpiad}")
+            else:
+                if data < now:
+                    await del_olympic(dat[i][1], dat[i][2], dat[i][3], dat[i][4], dat[i][5], dat[i][6], dat[i][7])
         else:
-            if data < now:
-                await del_olympic(dat[i][2])
+            usr = dat[i][0]
+            if len(await select_user(telegram_id=usr)) > 0:
+                tg = list(await select_user(telegram_id=usr))[0][0]
+                subject = list(await select_sub(int(dat[i][7])))[0][0]
+                information_about_olimpiad = (f"{str(subject).upper()}.  \n"
+                                              f"{hunderline(dat[i][1])}.  \n"
+                                              f"Начало олимпиады: {hbold(dat[i][2])} \n"
+                                              f"Этап олимпиады: {hbold(dat[i][3])} \n"
+                                              f"Расписание можете посмотреть {hlink(title='ТУТ!', url=dat[i][4])}\n"
+                                              f"Сайт этой олимпиады Вы можете посмотреть"
+                                              f"{hlink(title='ТУТ!', url=dat[i][5])}\n")
+
+                data = datetime.datetime.strptime(''.join(dat[i][2].split("-")), '%d%m%Y').date()
+                now = datetime.datetime.strptime(datetime.datetime.today().strftime('%d%m%Y'), '%d%m%Y').date()
+
+                flag = ((data - now) <= datetime.timedelta(days=2))
+                flag1 = ((data - now) > datetime.timedelta(days=0))
+
+                if flag is True and flag1 is True:
+                    await dp.bot.send_message(tg, f"{hbold('НЕ ЗАБУДЬТЕ!')}\n\n"
+                                                  f"{information_about_olimpiad}")
+                else:
+                    if data < now:
+                        await del_olympic(dat[i][1], dat[i][2], dat[i][3], dat[i][4], dat[i][5], dat[i][6], dat[i][7])
 
 
 @dp.message_handler(Text(equals=["ДА!"]))
