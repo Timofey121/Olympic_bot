@@ -1,19 +1,18 @@
 # -*- coding: utf8 -*-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Command
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hlink, hunderline
 
 from additional_files.dictionary import lis_of_subjects
-from keyboards.default.del_subject_or_choice import keyboard_3
+from keyboards.inline.del_subject_or_choice import keyboard_3
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import select_data_olimp_use_id, subscriber_exists, select_data_sub_info, \
     select_data_olimp_use_subject, del_data_in_olimpic, del_notif_in_olimpic, select_sub_id, select_user, select_sub
 
 
-@dp.message_handler(Command("delete_notification"))
+@dp.message_handler(text="🔔 Удаление уведомлений")
 async def del_notification(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer('Выберите способ удаления уведомлений(cм.ниже).', reply_markup=keyboard_3)
@@ -159,7 +158,8 @@ async def del_notification_2(message: types.Message, state: FSMContext):
                     await del_notif_in_olimpic(telegram_id, b[i][0], b[i][1],
                                                b[i][2], b[i][4], b[i][5])
                     if len(await select_user(telegram_id=message.from_user.id)) > 0:
-                        await del_notif_in_olimpic(list(await select_user(telegram_id=message.from_user.id))[0][-1], b[i][0], b[i][1],
+                        await del_notif_in_olimpic(list(await select_user(telegram_id=message.from_user.id))[0][-1],
+                                                   b[i][0], b[i][1],
                                                    b[i][2], b[i][4], b[i][5])
                     await message.answer("Уведомления отключены от")
                     await message.answer(f"{i + 1}) {information_about_olimpiad}")

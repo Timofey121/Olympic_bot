@@ -1,20 +1,13 @@
 from aiogram import types  # подключение модуля для работы с сообщениями
 
+from keyboards.default.buttons_menu import main_keyboard
 from loader import dp  # подключение Dispatcher, подключенного к Telegram боту
 
 
 @dp.message_handler(state=None)
 async def bot_echo(message: types.Message):
-    text = ("ТАКОЙ КОМАНДЫ НЕТ!",
-            "Список команд: ",
-            "/start - Начать диалог",
-            "/info - Вывести информацию о нужной олимпиаде",
-            "/notification - Подключение уведомлений",
-            "/check_notification - Просмотр подключенных уведомлений",
-            "/delete_notification - Удаление уведомлений",
-            "/secrettoken - Получить Секретный Токен для синхронизации сайта и Телеграмм бота",
-            "/feedback - Оставить отзыв",
-            "/technical_support - Написать в тех поддержку!",
-            )
+    text = (
+        "Неизвестная команда, воспользуйтесь меню",
+    )
 
-    await message.answer("\n".join(text))  # вывод текст - ответ на команду
+    await message.answer("\n".join(text), reply_markup=main_keyboard)  # вывод текст - ответ на команду

@@ -6,7 +6,7 @@ from loader import dp
 from utils.db_api.PostgreSQL import select_data_sub_info, subscriber_exists, select_user, select_sub
 
 
-@dp.message_handler(Command("check_notification"))
+@dp.message_handler(text="🔔 Просмотр подключенных уведомлений")
 async def check_notification(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer("Подождите немного! Начался поиск Ваших уведомлений!")

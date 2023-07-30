@@ -11,7 +11,7 @@ from states import Test
 from utils.db_api.PostgreSQL import add_user_tech, subscriber_exists
 
 
-@dp.message_handler(Command("technical_support"), state=None)
+@dp.message_handler(text="📝 Написать в тех поддержку", state=None)
 async def technical_support(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         if message.from_user.username is None:

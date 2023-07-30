@@ -5,6 +5,7 @@ from aiogram import types
 from aiogram.dispatcher.filters import Command
 
 from data.config import ADMINS
+from keyboards.default.buttons_menu import main_keyboard
 from loader import dp
 from utils.db_api.PostgreSQL import subscriber_exists, add_user, count_users
 
@@ -16,7 +17,7 @@ async def bot_start(message: types.Message):
                          f"Бот предоставит информацию об олимпиадах по нужным предметам и напомнит Вам о них "
                          f"(за 1 день)."
                          f"\n"
-                         f"Для того чтобы продолжить, нажмите МЕНЮ")
+                         f"Для того чтобы продолжить, нажмите МЕНЮ", reply_markup=main_keyboard)
     try:
         if len(list(await subscriber_exists(telegram_id=str(message.from_user.id)))) == 0:
             data_registration = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'),

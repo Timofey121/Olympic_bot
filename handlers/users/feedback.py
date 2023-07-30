@@ -3,7 +3,6 @@ import logging
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Command
 
 from data.config import ADMINS
 from loader import dp
@@ -11,7 +10,7 @@ from states import Test
 from utils.db_api.PostgreSQL import add_user_feedback, subscriber_exists
 
 
-@dp.message_handler(Command("feedback"), state=None)
+@dp.message_handler(text="📝 Оставить отзыв", state=None)
 async def feedback(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer("Привет ещё раз, мы очень рады, что Вы решили оставить отзыв! Напишите Ваш отзыв.")
