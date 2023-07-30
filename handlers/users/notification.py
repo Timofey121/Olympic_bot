@@ -2,8 +2,6 @@ import datetime
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
-from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hunderline, hlink
 
 from keyboards.inline.all_or_choice_notification import inline_buttons_choose_notification
@@ -40,8 +38,7 @@ async def info_2(callback: types.CallbackQuery, state: FSMContext):
     answer7 = callback.from_user.id
 
     await callback.message.answer(hbold(f"Началось подключение уведомлений к {subject.capitalize()}!\n"
-                                        f"Это займет около 2х минут"),
-                                  reply_markup=ReplyKeyboardRemove())
+                                        f"Это займет около 2х минут"))
 
     sub_id = int(list(await select_sub_id(sub=str(subject).lower().capitalize()))[0][0])
     gen = list(await data_olympiads(sub_id))
@@ -158,15 +155,3 @@ async def check(dp):
                 else:
                     if data < now:
                         await del_olympic(dat[i][1], dat[i][2], dat[i][3], dat[i][4], dat[i][5], dat[i][6], dat[i][7])
-
-
-@dp.message_handler(Text(equals=["ДА!"]))
-async def get_yes(message: types.Message):
-    await notification(message)
-
-
-@dp.message_handler(Text(equals=["НЕТ!"]))
-async def get_no(message: types.Message):
-    await message.answer("Не подключив уведомления, есть шанс, что Вы потеряете свой ключ на "
-                         "светлое будущее!!! В будущем, если Вы захотите подключить "
-                         "уведомления,просто напишите '/notification'", reply_markup=ReplyKeyboardRemove())

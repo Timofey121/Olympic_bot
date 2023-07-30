@@ -3,12 +3,8 @@ import datetime
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
-from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hunderline, hlink
 
-from handlers.users.notification import notification
-from keyboards.default.connect_or_no import keyboard
 from keyboards.inline.all_or_choice import inline_buttons_choose
 from keyboards.inline.buttons_lessons import inline_buttons_lessons
 from loader import dp
@@ -40,8 +36,7 @@ async def info_2(callback: types.CallbackQuery, state: FSMContext):
     subject = data.get("subject")
     await callback.message.answer(
         hbold(f"Подождите немного!\nНачался поиск информации об {subject.capitalize()}!\n"
-              f"Это займет около 2х минут"),
-        reply_markup=ReplyKeyboardRemove())
+              f"Это займет около 2х минут"))
 
     sub_id = int(list(await select_sub_id(sub=str(subject).lower().capitalize()))[0][0])
     gen = list(await information_about_olympiads(sub_id))
@@ -113,16 +108,4 @@ async def info_2(callback: types.CallbackQuery, state: FSMContext):
             hbold("По статистике каждый школьник забывает примерно о 6 из 10 олимпиад, из-за этого"
                   " снижается шанс поступления в ВУЗ. Поэтому мы предлагаем Вам, бесплатно "
                   "подключить уведомления на "
-                  "разные олимпиады, хотите подключить уведомления?"), reply_markup=keyboard)
-
-
-@dp.message_handler(Text(equals=["Подключить!"]))
-async def get(message: types.Message):
-    await notification(message)
-
-
-@dp.message_handler(Text(equals=["Не подключать!"]))
-async def get_not(message: types.Message):
-    await message.answer(
-        "Не подключив уведомления, есть шанс, что Вы потеряете свой ключ на светлое будущее! В будущем, "
-        "если Вы захотите подключить уведомления,просто напишите '/notification'", reply_markup=ReplyKeyboardRemove())
+                  "разные олимпиады, хотите подключить уведомления?"))
