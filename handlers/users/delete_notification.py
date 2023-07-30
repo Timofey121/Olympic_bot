@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hlink, hunderline
 
 from additional_files.dictionary import lis_of_subjects
-from keyboards.inline.del_subject_or_choice import keyboard_3
+from keyboards.inline.buttons_lessons_del_notif import inline_buttons_lessons_delete_notification
+from keyboards.inline.del_subject_or_choice import inline_buttons_delete
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import select_data_olimp_use_id, subscriber_exists, select_data_sub_info, \
@@ -15,44 +15,32 @@ from utils.db_api.PostgreSQL import select_data_olimp_use_id, subscriber_exists,
 @dp.message_handler(text="🔔 Удаление уведомлений")
 async def del_notification(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
-        await message.answer('Выберите способ удаления уведомлений(cм.ниже).', reply_markup=keyboard_3)
-        await Test.Q_for_delete_notification_1.set()
+        await message.answer('Выберите способ удаления уведомлений(cм.ниже).', reply_markup=inline_buttons_delete)
     else:
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
 
 
-@dp.message_handler(state=Test.Q_for_delete_notification_1)
-async def del_notification_1(message: types.Message, state: FSMContext):
-    answer_1 = message.text
+@dp.callback_query_handler(text_startswith="Удалить-уведомления-")
+async def info_1(callback: types.CallbackQuery, state: FSMContext):
+    answer_1 = callback.data.split('я-')[-1]
     await state.update_data(answer1=answer_1)
-    if message.text == "Удалить уведомления определенного предмета!":
+    if answer_1 == "предмет":
         try:
-            if len(list(await select_data_olimp_use_id(telegram_id=message.from_user.id))) > 0:
-                await message.answer(
-                    "Введите предмет информацию о олимпиаде(ах) которого Вы хотите удалить(C большой буквы, через "
-                    "запятую)!\n\nСписок доступных предметов, по которым мы предоставляем информацию о олимпиадах:\n",
-                    reply_markup=ReplyKeyboardRemove())
-                abc = []
-                for i in range(len(lis_of_subjects)):
-                    abc.append(f"{i + 1}) {lis_of_subjects[i]}")
-                await message.answer(
-                    f"{''.join(abc)}\n Пример ввода:\n"
-                    "1) География\n"
-                    "2) География, Математика")
+            if len(list(await select_data_olimp_use_id(telegram_id=callback.from_user.id))) > 0:
+                await callback.message.answer(
+                    f"{hbold('Выберите предмет')} интересующих Вас олимпиады!",
+                    reply_markup=inline_buttons_lessons_delete_notification)
             else:
-                await message.answer(
-                    "Перед тем, чтобы удалять уведомления, их надо подключить, для подключения уведомлений "
-                    "напишите - '/notification'")
+                await callback.message.answer("Перед тем, чтобы удалять уведомления, их надо подключить")
         except Exception as ex:
-            await message.answer(
-                "Перед тем, чтобы удалять уведомления, их надо подключить, для подключения уведомлений "
-                "напишите - '/notification'", reply_markup=ReplyKeyboardRemove())
-    elif message.text == "Удалить выбранные уведомления(по номеру)!":
-        await message.answer("Подождите немного! Начался поиск уведомлений!")
-        a = list(await select_data_sub_info(telegram_id=message.from_user.id))
-        if len(await select_user(telegram_id=message.from_user.id)) > 0:
+            await callback.message.answer("Перед тем, чтобы удалять уведомления, их надо подключить")
+
+    elif answer_1 == "номер":
+        await callback.message.answer("Подождите немного! Начался поиск уведомлений!")
+        a = list(await select_data_sub_info(telegram_id=callback.from_user.id))
+        if len(await select_user(telegram_id=callback.from_user.id)) > 0:
             a += list(await select_data_sub_info(
-                telegram_id=list(await select_user(telegram_id=message.from_user.id))[0][-1]))
+                telegram_id=list(await select_user(telegram_id=callback.from_user.id))[0][-1]))
         c = [[]]
         t, k = 0, 0
         subs = []
@@ -90,9 +78,9 @@ async def del_notification_1(message: types.Message, state: FSMContext):
                     k += 1
 
             for i in range(len(c)):
-                await message.answer("\n".join(c[i]))
-        await message.answer("Введите номера тех олимпиад, уведомления которых Вы хотите удалить(через запятую)!",
-                             reply_markup=ReplyKeyboardRemove())
+                await callback.message.answer("\n".join(c[i]))
+        await callback.message.answer(
+            "Введите номера тех олимпиад, уведомления которых Вы хотите удалить(через запятую)!")
 
     await Test.Q_for_delete_notification_2.set()
 
