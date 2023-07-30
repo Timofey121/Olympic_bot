@@ -1,8 +1,8 @@
 from secrets import token_hex
 
 from aiogram import types
-from aiogram.dispatcher.filters.builtin import Command
 
+from keyboards.default.buttons_menu import main_keyboard
 from loader import dp
 from utils.db_api.PostgreSQL import subscriber_exists, secret_token_exists, add_token
 
@@ -16,6 +16,7 @@ async def bot_help(message: types.Message):
         else:
             token = token_hex(32)
             await add_token(telegram_id=message.from_user.id, token=token)
-            await message.answer(f"Ваш Секретный Токен для синхронизации с сайтом\n\n{token}")
+            await message.answer(f"Ваш Секретный Токен для синхронизации с сайтом\n\n{token}",
+                                 reply_markup=main_keyboard)
     else:
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")

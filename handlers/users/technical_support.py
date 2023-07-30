@@ -6,6 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 
 from data.config import ADMINS
+from keyboards.default.buttons_menu import main_keyboard
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import add_user_tech, subscriber_exists
@@ -31,6 +32,7 @@ async def technical_support(message: types.Message):
 async def technical_support_1(message: types.Message, state: FSMContext):
     answer = message.text
     await add_user_tech(telegram_id=str(message.from_user.username), help=answer)
+    await message.answer("Ваша проблема принята. Мы свяжемся с Вами в ближайшее время.", reply_markup=main_keyboard)
     for admin in ADMINS:
         try:
             await dp.bot.send_message(admin,

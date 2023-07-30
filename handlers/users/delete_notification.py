@@ -3,6 +3,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.markdown import hbold, hlink, hunderline
 
+from keyboards.default.buttons_menu import main_keyboard
 from keyboards.inline.buttons_lessons_del_notif import inline_buttons_lessons_delete_notification
 from keyboards.inline.del_subject_or_choice import inline_buttons_delete
 from loader import dp
@@ -102,7 +103,6 @@ async def idelnotif34(callback: types.CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=Test.Q_for_delete_notification_2)
 async def del_notification_2(message: types.Message, state: FSMContext):
-    data = await state.get_data()
     telegram_id = message.from_user.id
     try:
         sa = message.text.split(",")
@@ -134,7 +134,7 @@ async def del_notification_2(message: types.Message, state: FSMContext):
                                                b[i][0], b[i][1],
                                                b[i][2], b[i][4], b[i][5])
                 await message.answer("Уведомления отключены от")
-                await message.answer(f"{i + 1}) {information_about_olimpiad}")
+                await message.answer(f"{i + 1}) {information_about_olimpiad}", reply_markup=main_keyboard)
     except Exception as ex:
-        await message.answer(f"Проверьте правильность номеров уведомлений, для удаления!")
+        await message.answer(f"Проверьте правильность номеров уведомлений, для удаления!", reply_markup=main_keyboard)
     await state.finish()
