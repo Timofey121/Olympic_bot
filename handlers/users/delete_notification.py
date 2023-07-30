@@ -75,13 +75,11 @@ async def info_1(callback: types.CallbackQuery, state: FSMContext):
                     else:
                         c[t].append(f"{k + 1}) Уведомления подключены к \n{information_about_olimpiad}")
                     k += 1
-
             for i in range(len(c)):
                 await callback.message.answer("\n".join(c[i]))
         await callback.message.answer(
             "Введите номера тех олимпиад, уведомления которых Вы хотите удалить(через запятую)!")
-
-    await Test.Q_for_delete_notification_2.set()
+        await Test.Q_for_delete_notification_2.set()
 
 
 @dp.callback_query_handler(text_startswith="УдалУвеПредмет-")
@@ -105,41 +103,38 @@ async def idelnotif34(callback: types.CallbackQuery, state: FSMContext):
 @dp.message_handler(state=Test.Q_for_delete_notification_2)
 async def del_notification_2(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    answer1 = data.get("answer1")
     telegram_id = message.from_user.id
-    if answer1 == "Удалить выбранные уведомления(по номеру)!":
-        try:
-            sa = message.text.split(",")
-            for i in range(len(sa)):
-                sa[i] = str(sa[i]).lstrip().rstrip()
-            a = list(await select_data_sub_info(telegram_id=message.from_user.id))
-            if len(await select_user(telegram_id=message.from_user.id)) > 0:
-                a += list(await select_data_sub_info(
-                    telegram_id=list(await select_user(telegram_id=message.from_user.id))[0][-1]))
-            b = []
-            for i in range(len(a)):
-                i_about_ol = [a[i][1], a[i][2], a[i][3], a[i][4], a[i][5], a[i][-1]]
-                if i_about_ol not in b:
-                    b.append(i_about_ol)
-            for i in range(len(b)):
-                if str(int(i + 1)) in sa:
-                    information_about_olimpiad = ''
-                    information_about_olimpiad += (f"{hunderline(b[i][0])}.  \n"
-                                                   f"Начало олимпиады: {hbold(b[i][1])} \n"
-                                                   f"Этап олимпиады: {hbold(b[i][2])} \n")
-                    information_about_olimpiad += "Олимпиада "
-                    information_about_olimpiad += (
-                        f"\nРасписание можете посмотреть {hlink(title='ТУТ!', url=b[i][3])}\n"
-                        f"Сайт этой олимпиады Вы можете посмотреть {hlink(title='ТУТ!', url=b[i][4])}\n")
-                    await del_notif_in_olimpic(telegram_id, b[i][0], b[i][1],
+    try:
+        sa = message.text.split(",")
+        for i in range(len(sa)):
+            sa[i] = str(sa[i]).lstrip().rstrip()
+        a = list(await select_data_sub_info(telegram_id=message.from_user.id))
+        if len(await select_user(telegram_id=message.from_user.id)) > 0:
+            a += list(await select_data_sub_info(
+                telegram_id=list(await select_user(telegram_id=message.from_user.id))[0][-1]))
+        b = []
+        for i in range(len(a)):
+            i_about_ol = [a[i][1], a[i][2], a[i][3], a[i][4], a[i][5], a[i][-1]]
+            if i_about_ol not in b:
+                b.append(i_about_ol)
+        for i in range(len(b)):
+            if str(int(i + 1)) in sa:
+                information_about_olimpiad = ''
+                information_about_olimpiad += (f"{hunderline(b[i][0])}.  \n"
+                                               f"Начало олимпиады: {hbold(b[i][1])} \n"
+                                               f"Этап олимпиады: {hbold(b[i][2])} \n")
+                information_about_olimpiad += "Олимпиада "
+                information_about_olimpiad += (
+                    f"\nРасписание можете посмотреть {hlink(title='ТУТ!', url=b[i][3])}\n"
+                    f"Сайт этой олимпиады Вы можете посмотреть {hlink(title='ТУТ!', url=b[i][4])}\n")
+                await del_notif_in_olimpic(telegram_id, b[i][0], b[i][1],
+                                           b[i][2], b[i][4], b[i][5])
+                if len(await select_user(telegram_id=message.from_user.id)) > 0:
+                    await del_notif_in_olimpic(list(await select_user(telegram_id=message.from_user.id))[0][-1],
+                                               b[i][0], b[i][1],
                                                b[i][2], b[i][4], b[i][5])
-                    if len(await select_user(telegram_id=message.from_user.id)) > 0:
-                        await del_notif_in_olimpic(list(await select_user(telegram_id=message.from_user.id))[0][-1],
-                                                   b[i][0], b[i][1],
-                                                   b[i][2], b[i][4], b[i][5])
-                    await message.answer("Уведомления отключены от")
-                    await message.answer(f"{i + 1}) {information_about_olimpiad}")
-        except Exception as ex:
-            await message.answer(f"Проверьте правильность номеров уведомлений, для удаления!")
-
+                await message.answer("Уведомления отключены от")
+                await message.answer(f"{i + 1}) {information_about_olimpiad}")
+    except Exception as ex:
+        await message.answer(f"Проверьте правильность номеров уведомлений, для удаления!")
     await state.finish()
