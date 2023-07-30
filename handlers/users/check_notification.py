@@ -54,11 +54,10 @@ async def check_notification(message: types.Message):
                     await message.answer("\n".join(c[i]))
             else:
                 await message.answer(
-                    "К сожалению, у Вас не подключены уведомления. Для подключения уведомлений напишите -"
-                    " '/notification'")
+                    "К сожалению, у Вас не подключены уведомления")
         except Exception as ex:
             print(ex)
             await message.answer(
-                "К сожалению, у Вас не подключены уведомления. Для подключения уведомлений напишите - '/notification'")
+                "К сожалению, у Вас не подключены уведомления")
     else:
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
