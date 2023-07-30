@@ -16,7 +16,7 @@ from utils.db_api.PostgreSQL import subscriber_exists, information_about_olympia
     del_olympic_in_olympiads_parsing, select_sub_id
 
 
-@dp.message_handler(text='✍️ Вывести информацию о нужной олимпиаде', state=None)
+@dp.message_handler(text='✍️ Вывести информацию о нужной олимпиаде')
 async def info(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
         await message.answer(
@@ -25,7 +25,7 @@ async def info(message: types.Message):
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
 
 
-@dp.callback_query_handler(text_startswith="Информация-Предмет-")
+@dp.callback_query_handler(text_startswith="ИнфорПредмет-")
 async def info_1(callback: types.CallbackQuery, state: FSMContext):
     subject = callback.data.split('-')[-1]
     await state.update_data(subject=subject)

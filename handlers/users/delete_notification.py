@@ -3,13 +3,12 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.markdown import hbold, hlink, hunderline
 
-from additional_files.dictionary import lis_of_subjects
 from keyboards.inline.buttons_lessons_del_notif import inline_buttons_lessons_delete_notification
 from keyboards.inline.del_subject_or_choice import inline_buttons_delete
 from loader import dp
 from states import Test
 from utils.db_api.PostgreSQL import select_data_olimp_use_id, subscriber_exists, select_data_sub_info, \
-    select_data_olimp_use_subject, del_data_in_olimpic, del_notif_in_olimpic, select_sub_id, select_user, select_sub
+    del_notif_in_olimpic, select_user, select_sub, del_data_in_olimpic, select_sub_id, select_data_olimp_use_subject
 
 
 @dp.message_handler(text="🔔 Удаление уведомлений")
@@ -85,41 +84,30 @@ async def info_1(callback: types.CallbackQuery, state: FSMContext):
     await Test.Q_for_delete_notification_2.set()
 
 
+@dp.callback_query_handler(text_startswith="УдалУвеПредмет-")
+async def idelnotif34(callback: types.CallbackQuery, state: FSMContext):
+    sa = callback.data.split("-")[-1]
+    sub_id = int(list(await select_sub_id(sub=(str(sa).lower().capitalize())))[0][0])
+    rgt = list(await select_data_olimp_use_subject(sub_id))
+
+    if rgt:
+        await callback.message.answer(
+            hbold(f"Началось отключение уведомлений, подключенных к {sa.capitalize()}!"))
+        await del_data_in_olimpic(user=callback.from_user.id, sub_id=sub_id)
+        if len(await select_user(telegram_id=callback.from_user.id)) > 0:
+            await del_data_in_olimpic(user=list(await select_user(telegram_id=callback.from_user.id))[0][-1],
+                                      sub_id=sub_id)
+        await callback.message.answer(hbold(f"Отключены уведомления, подключенные к {sa.capitalize()}!"))
+    else:
+        await callback.message.answer(hbold(f"Уведомления не подключены к {sa.capitalize()}"))
+
+
 @dp.message_handler(state=Test.Q_for_delete_notification_2)
 async def del_notification_2(message: types.Message, state: FSMContext):
     data = await state.get_data()
     answer1 = data.get("answer1")
     telegram_id = message.from_user.id
-    if answer1 == "Удалить уведомления определенного предмета!":
-        sa = message.text.split(",")
-        for i in range(len(sa)):
-            sa[i] = str(sa[i]).lstrip().rstrip()
-        for i in range(len(sa)):
-            try:
-                if f'{sa[i]}  \n' in lis_of_subjects:
-                    htt = sa[i]
-                    sub_id = int(list(await select_sub_id(sub=(str(htt).lower().capitalize())))[0][0])
-                    rgt = list(await select_data_olimp_use_subject(sub_id))
-
-                    word_text = sa[i]
-                    if rgt:
-                        await message.answer(
-                            hbold(f"Началось отключение уведомлений, подключенных к {word_text.capitalize()}!"))
-                        await del_data_in_olimpic(user=telegram_id, sub_id=sub_id)
-                        if len(await select_user(telegram_id=message.from_user.id)) > 0:
-                            await del_data_in_olimpic(
-                                user=list(await select_user(telegram_id=message.from_user.id))[0][-1], sub_id=sub_id)
-
-                        await message.answer(hbold(f"Отключены уведомления, подключенные к {word_text.capitalize()}!"))
-                    else:
-                        await message.answer(hbold(f"Уведомления не подключены к {word_text.capitalize()}"))
-                else:
-                    await message.answer(f"Такого предмета не существует, проверьте правильность написания!")
-            except Exception as ex:
-                await message.answer("Проверьте правильность название предмета! Нашли ошибку, "
-                                     "напишите нам в поддержку и мы обязательно ее решим.")
-
-    elif answer1 == "Удалить выбранные уведомления(по номеру)!":
+    if answer1 == "Удалить выбранные уведомления(по номеру)!":
         try:
             sa = message.text.split(",")
             for i in range(len(sa)):

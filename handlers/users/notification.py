@@ -24,7 +24,7 @@ async def notification(message: types.Message):
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
 
 
-@dp.callback_query_handler(text_startswith="Уведомления-Предмет-")
+@dp.callback_query_handler(text_startswith="УведомПредмет-")
 async def notification_2(callback: types.CallbackQuery, state: FSMContext):
     subject = callback.data.split('-')[-1]
     await state.update_data(subject=subject)
