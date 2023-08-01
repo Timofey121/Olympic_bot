@@ -15,9 +15,7 @@ async def bot_start(message: types.Message):
     await message.answer(f"Привет, {message.from_user.full_name}!\n"
                          f"Бот создан для помощи ученикам, которые хотят поступить в ВУЗ по олимпиадам. \n"
                          f"Бот предоставит информацию об олимпиадах по нужным предметам и напомнит Вам о них "
-                         f"(за 1 день)."
-                         f"\n"
-                         f"Для того чтобы продолжить, нажмите МЕНЮ", reply_markup=main_keyboard)
+                         f"(за 1 день).", reply_markup=main_keyboard)
     try:
         if len(list(await subscriber_exists(telegram_id=str(message.from_user.id)))) == 0:
             data_registration = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y%m%d'),
