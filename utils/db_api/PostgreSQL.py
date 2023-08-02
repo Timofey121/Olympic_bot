@@ -11,7 +11,6 @@ def main():
                            # пароль, который указали при установке PostgreSQL
                            password=POSTGRES_PASSWORD,
                            host=HOST,
-                           db=POSTGRES_DB,
                            port="5432")
     cur = con.cursor()
 
