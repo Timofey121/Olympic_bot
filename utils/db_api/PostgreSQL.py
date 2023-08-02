@@ -1,11 +1,18 @@
 # -*- coding: utf8 -*-
-import sqlite3
+import psycopg2
+
+from data.config import POSTGRES_USER, POSTGRES_PASSWORD, HOST, POSTGRES_DB
 
 
 def main():
     global con, cur
 
-    con = sqlite3.connect('/home/timofey/PycharmProjects/SiteForOlimpic/db.sqlite3')
+    con = psycopg2.connect(user=POSTGRES_USER,
+                           # пароль, который указали при установке PostgreSQL
+                           password=POSTGRES_PASSWORD,
+                           host=HOST,
+                           db=POSTGRES_DB,
+                           port="5432")
     cur = con.cursor()
 
 
