@@ -95,11 +95,11 @@ async def info_2(callback: types.CallbackQuery, state: FSMContext):
                                                        sites[k], rsochs[k], sub_ids[k])
             else:
                 count += 1
-                flag = True
-                await callback.message.answer(f"{count}) {information_olimpiads[k]}")
+                await callback.message.answer(f"{count}) {information_olimpiads[k]}", reply_markup=main_keyboard)
 
     if len(name_olimpiads) == 0:
-        await callback.message.answer('К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
+        await callback.message.answer('К сожалению, все олимпиды по этому предмету в этом учебном году прошли!',
+                                      reply_markup=main_keyboard)
     else:
         await callback.message.answer(
             hbold("Олимпиады упрощают поступление в ВУЗ! Они позволяют "
@@ -113,4 +113,4 @@ async def info_2(callback: types.CallbackQuery, state: FSMContext):
             hbold("По статистике каждый школьник забывает примерно о 6 из 10 олимпиад, из-за этого"
                   " снижается шанс поступления в ВУЗ. Поэтому мы предлагаем Вам, бесплатно "
                   "подключить уведомления на "
-                  "разные олимпиады, хотите подключить уведомления?"))
+                  "разные олимпиады, хотите подключить уведомления?"), reply_markup=main_keyboard)

@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hlink, hunderline
 
 from keyboards.default.buttons_menu import main_keyboard
@@ -15,6 +16,8 @@ from utils.db_api.PostgreSQL import select_data_olimp_use_id, subscriber_exists,
 @dp.message_handler(text="🔔 Удаление уведомлений")
 async def del_notification(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
+        await message.answer(f"Привет, Olympic на связи, сейчас я тебе со всем помогу.",
+                             reply_markup=ReplyKeyboardRemove())
         await message.answer('Выберите способ удаления уведомлений(cм.ниже).', reply_markup=inline_buttons_delete)
     else:
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
@@ -31,9 +34,11 @@ async def info_1(callback: types.CallbackQuery, state: FSMContext):
                     f"{hbold('Выберите предмет')} интересующих Вас олимпиады!",
                     reply_markup=inline_buttons_lessons_delete_notification)
             else:
-                await callback.message.answer("Перед тем, чтобы удалять уведомления, их надо подключить")
+                await callback.message.answer("Перед тем, чтобы удалять уведомления, их надо подключить",
+                                              reply_markup=main_keyboard)
         except Exception as ex:
-            await callback.message.answer("Перед тем, чтобы удалять уведомления, их надо подключить")
+            await callback.message.answer("Перед тем, чтобы удалять уведомления, их надо подключить",
+                                          reply_markup=main_keyboard)
 
     elif answer_1 == "номер":
         await callback.message.answer("Подождите немного! Начался поиск уведомлений!")
@@ -96,9 +101,11 @@ async def idelnotif34(callback: types.CallbackQuery, state: FSMContext):
         if len(await select_user(telegram_id=callback.from_user.id)) > 0:
             await del_data_in_olimpic(user=list(await select_user(telegram_id=callback.from_user.id))[0][-1],
                                       sub_id=sub_id)
-        await callback.message.answer(hbold(f"Отключены уведомления, подключенные к {sa.capitalize()}!"))
+        await callback.message.answer(hbold(f"Отключены уведомления, подключенные к {sa.capitalize()}!"),
+                                      reply_markup=main_keyboard)
     else:
-        await callback.message.answer(hbold(f"Уведомления не подключены к {sa.capitalize()}"))
+        await callback.message.answer(hbold(f"Уведомления не подключены к {sa.capitalize()}"),
+                                      reply_markup=main_keyboard)
 
 
 @dp.message_handler(state=Test.Q_for_delete_notification_2)

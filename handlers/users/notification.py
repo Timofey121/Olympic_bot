@@ -2,8 +2,10 @@ import datetime
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hunderline, hlink
 
+from keyboards.default.buttons_menu import main_keyboard
 from keyboards.inline.all_or_choice_notification import inline_buttons_choose_notification
 from keyboards.inline.buttons_lessons_notification import inline_buttons_lessons_notification
 from loader import dp
@@ -15,6 +17,8 @@ from utils.db_api.PostgreSQL import subscriber_exists, data_olympiads, add_notif
 @dp.message_handler(text="🔔 Подключение уведомлений")
 async def notification(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
+        await message.answer(f"Привет, Olympic на связи, сейчас я тебе со всем помогу.",
+                             reply_markup=ReplyKeyboardRemove())
         await message.answer(
             f"{hbold('Выберите предмет')} интересующих Вас олимпиады!",
             reply_markup=inline_buttons_lessons_notification)
@@ -85,23 +89,26 @@ async def info_2(callback: types.CallbackQuery, state: FSMContext):
                     await add_notification_dates(answer7, name_olimpiads[k], dates[k],
                                                  stages[k], schedules[k], sites[k],
                                                  rsochs[k], sub_ids[k])
-    if flag is False:
+    if len(name_olimpiads) == 0:
         await callback.message.answer(f"К сожалению, все олимпиады по этому предмету прошли. Уведомления  "
                                       "возможно подключить после  утверждения графика проведения олимпиад "
                                       f"школьников и их уровней "
                                       f"{datetime.datetime.now().year}/{datetime.datetime.now().year + 1} на "
                                       f"учебный год! Ориентировочно "
-                                      "сентябрь-октябрь!")
+                                      "сентябрь-октябрь!", reply_markup=main_keyboard)
     else:
         if callback.data.split('-')[-1] == "РСОШ":
             if e == 0:
                 await callback.message.answer(
                     hbold(f"К сожалению, нет таких олимпиад, которые помогут Вам при поступлении, "
-                          f"посмотрите весь список олимпиад по {str(subject).capitalize()}:"))
+                          f"посмотрите весь список олимпиад по {str(subject).capitalize()}:"),
+                    reply_markup=main_keyboard)
             else:
-                await callback.message.answer(hbold(f"Уведомления подключены к {subject.capitalize()}!"))
+                await callback.message.answer(hbold(f"Уведомления подключены к {subject.capitalize()}!"),
+                                              reply_markup=main_keyboard)
         elif callback.data.split('-')[-1] == "все":
-            await callback.message.answer(hbold(f"Подключены уведомления к {subject.capitalize()}!"))
+            await callback.message.answer(hbold(f"Подключены уведомления к {subject.capitalize()}!"),
+                                          reply_markup=main_keyboard)
 
 
 async def check(dp):
