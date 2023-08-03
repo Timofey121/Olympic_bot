@@ -7,7 +7,7 @@ from data.config import POSTGRES_USER, POSTGRES_PASSWORD, HOST, POSTGRES_DB
 def main():
     global con, cur
 
-    con = psycopg2.connect(user=POSTGRES_USER,
+    con = psycopg2.connect(customer=POSTGRES_USER,
                            # пароль, который указали при установке PostgreSQL
                            password=POSTGRES_PASSWORD,
                            host=HOST,
@@ -89,25 +89,25 @@ async def count_olympiads():
     return rows
 
 
-async def add_user_feedback(telegram_id, olympic_feedback):
+async def add_user_feedback(customer, feedback):
     main()
     cur.execute(
-        f"INSERT INTO olympic_feedback (user, feedback) VALUES('{telegram_id}', '{olympic_feedback}')")
+        f"INSERT INTO olympic_feedback (customer, feedback) VALUES('{customer}', '{feedback}')")
     con.commit()
     con.close()
 
 
-async def add_user_tech(telegram_id, help):
+async def add_user_tech(customer, help):
     main()
-    cur.execute(f"INSERT INTO olympic_technicalsupport (user, help) VALUES('{telegram_id}', '{help}')")
+    cur.execute(f"INSERT INTO olympic_technicalsupport (customer, help) VALUES('{customer}', '{help}')")
     con.commit()
     con.close()
 
 
-async def add_notification_dates(user, title, start, stage, schedule, site, rsoch, sub):
+async def add_notification_dates(customer, title, start, stage, schedule, site, rsoch, sub):
     main()
-    cur.execute(f"INSERT INTO olympic_notificationdates (user, title, start, stage, schedule, site, rsoch, sub_id) "
-                f"VALUES('{user}', '{title}', '{start}', '{stage}', '{schedule}', '{site}', '{rsoch}', '{sub}')")
+    cur.execute(f"INSERT INTO olympic_notificationdates (customer, title, start, stage, schedule, site, rsoch, sub_id) "
+                f"VALUES('{customer}', '{title}', '{start}', '{stage}', '{schedule}', '{site}', '{rsoch}', '{sub}')")
     con.commit()
     con.close()
 
@@ -156,16 +156,16 @@ async def data_olympiads(sub_id):
 
 async def select_data_olimp_use_id(telegram_id):
     main()
-    cur.execute(f"SELECT start FROM olympic_notificationdates WHERE user='{telegram_id}'")
+    cur.execute(f"SELECT start FROM olympic_notificationdates WHERE customer='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
 
 
-async def select_yes_or_no_in_notifications(user, title, start, stage, schedule, site, rsoch, sub):
+async def select_yes_or_no_in_notifications(customer, title, start, stage, schedule, site, rsoch, sub):
     main()
     cur.execute(
-        f"SELECT start FROM olympic_notificationdates WHERE user='{user}' AND title='{title}' AND start='{start}'"
+        f"SELECT start FROM olympic_notificationdates WHERE customer='{customer}' AND title='{title}' AND start='{start}'"
         f" AND stage='{stage}' AND schedule='{schedule}' AND site='{site}' AND rsoch='{rsoch}' AND sub_id={sub}")
     rows = cur.fetchall()
     con.close()
@@ -190,7 +190,7 @@ async def select_sub(sub_id):
 
 async def select_subjects_olimp_use_id(telegram_id):
     main()
-    cur.execute(f"SELECT sub_id FROM olympic_notificationdates WHERE user='{telegram_id}'")
+    cur.execute(f"SELECT sub_id FROM olympic_notificationdates WHERE customer='{telegram_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -199,8 +199,8 @@ async def select_subjects_olimp_use_id(telegram_id):
 async def select_data_sub_info(telegram_id):
     main()
     cur.execute(
-        f"SELECT user, title, start, stage, schedule, site, rsoch, sub_id FROM olympic_notificationdates "
-        f"WHERE user='{telegram_id}' ORDER BY sub_id")
+        f"SELECT customer, title, start, stage, schedule, site, rsoch, sub_id FROM olympic_notificationdates "
+        f"WHERE customer='{telegram_id}' ORDER BY sub_id")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -209,7 +209,7 @@ async def select_data_sub_info(telegram_id):
 async def select(telegram_id, sub_id):
     main()
     cur.execute(
-        f"SELECT rsoch FROM olympic_notificationdates WHERE user='{telegram_id}' AND sub_id='{sub_id}'")
+        f"SELECT rsoch FROM olympic_notificationdates WHERE customer='{telegram_id}' AND sub_id='{sub_id}'")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -232,10 +232,10 @@ async def select_data_olimp_use_subject(sub_id):
     return rows
 
 
-async def del_data_in_olimpic(user, sub_id):
+async def del_data_in_olimpic(customer, sub_id):
     main()
     cur.execute(
-        f"DELETE FROM olympic_notificationdates WHERE user = '{user}' AND sub_id = '{sub_id}'")
+        f"DELETE FROM olympic_notificationdates WHERE customer = '{customer}' AND sub_id = '{sub_id}'")
     con.commit()
     con.close()
 
@@ -286,7 +286,7 @@ async def select_sub_id(sub):
 async def del_notif_in_olimpic(telegram_id, title, start, stage, site, sub):
     main()
     cur.execute(
-        f"DELETE FROM olympic_notificationdates WHERE user = '{telegram_id}' AND title='{title}' AND start='{start}'"
+        f"DELETE FROM olympic_notificationdates WHERE customer = '{telegram_id}' AND title='{title}' AND start='{start}'"
         f" AND stage='{stage}'  AND site='{site}' AND sub_id={sub}")
     con.commit()
     con.close()
@@ -295,14 +295,14 @@ async def del_notif_in_olimpic(telegram_id, title, start, stage, site, sub):
 async def del_tech(tag, help):
     main()
     cur.execute(
-        f"DELETE FROM olympic_technicalsupport WHERE user = '{tag}' AND help = '{help}'")
+        f"DELETE FROM olympic_technicalsupport WHERE customer = '{tag}' AND help = '{help}'")
     con.commit()
     con.close()
 
 
 async def all_tech_failed():
     main()
-    cur.execute(f"SELECT user, help FROM olympic_technicalsupport")
+    cur.execute(f"SELECT customer, help FROM olympic_technicalsupport")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -310,7 +310,7 @@ async def all_tech_failed():
 
 async def select_data_infor_id():
     main()
-    cur.execute(f"SELECT user, title, start, stage, schedule, site, rsoch, sub_id FROM olympic_notificationdates")
+    cur.execute(f"SELECT customer, title, start, stage, schedule, site, rsoch, sub_id FROM olympic_notificationdates")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -324,9 +324,9 @@ async def select_tg_or_site(telegram_id):
     return rows
 
 
-async def select_site(user):
+async def select_site(customer):
     main()
-    cur.execute(f"SELECT user,email,blocked FROM olympic_registrationsite WHERE user='{user}'")
+    cur.execute(f"SELECT customer,email,blocked FROM olympic_registrationsite WHERE customer='{customer}'")
     rows = cur.fetchall()
     con.close()
     return rows

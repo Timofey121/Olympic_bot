@@ -37,7 +37,7 @@ async def technical_support_1(message: types.Message, state: FSMContext):
         await message.answer('Вы вернулись в меню', reply_markup=main_keyboard)
         await state.finish()
     else:
-        await add_user_tech(telegram_id=str(message.from_user.username), help=answer)
+        await add_user_tech(str(message.from_user.username), answer)
         await message.answer("Ваша проблема принята. Мы свяжемся с Вами в ближайшее время.", reply_markup=main_keyboard)
         for admin in ADMINS:
             try:
