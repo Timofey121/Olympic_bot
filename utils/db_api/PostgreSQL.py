@@ -7,7 +7,7 @@ from data.config import POSTGRES_USER, POSTGRES_PASSWORD, HOST, POSTGRES_DB
 def main():
     global con, cur
 
-    con = psycopg2.connect(customer=POSTGRES_USER,
+    con = psycopg2.connect(user=POSTGRES_USER,
                            # пароль, который указали при установке PostgreSQL
                            password=POSTGRES_PASSWORD,
                            host=HOST,

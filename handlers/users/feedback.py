@@ -36,7 +36,7 @@ async def feedback_1(message: types.Message, state: FSMContext):
             name = message.from_user.id
             if message.from_user.username is not None:
                 name = message.from_user.username
-            await add_user_feedback(user=name, feedback=answer)
+            await add_user_feedback(name, answer)
             await message.answer("Спасибо за оставленный отзыв", reply_markup=main_keyboard)
             for admin in ADMINS:
                 try:

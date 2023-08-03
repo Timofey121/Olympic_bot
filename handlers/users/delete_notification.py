@@ -97,9 +97,9 @@ async def idelnotif34(callback: types.CallbackQuery, state: FSMContext):
     if rgt:
         await callback.message.answer(
             hbold(f"Началось отключение уведомлений, подключенных к {sa.capitalize()}!"))
-        await del_data_in_olimpic(user=callback.from_user.id, sub_id=sub_id)
+        await del_data_in_olimpic(customer=callback.from_user.id, sub_id=sub_id)
         if len(await select_user(telegram_id=callback.from_user.id)) > 0:
-            await del_data_in_olimpic(user=list(await select_user(telegram_id=callback.from_user.id))[0][-1],
+            await del_data_in_olimpic(customer=list(await select_user(telegram_id=callback.from_user.id))[0][-1],
                                       sub_id=sub_id)
         await callback.message.answer(hbold(f"Отключены уведомления, подключенные к {sa.capitalize()}!"),
                                       reply_markup=main_keyboard)
