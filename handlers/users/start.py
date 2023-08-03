@@ -34,7 +34,7 @@ async def bot_start(message: types.Message):
                                               f"ID = {message.from_user.id}\n"
                                               f"Language = {message.from_user.language_code}\n\n"
                                               f"Всего пользователей ==> {list(await count_users())[0][0]}")
-                except:
-                    pass
+                except Exception as ex:
+                    print(ex)
     except Exception as ex:
-        pass
+        print(ex)

@@ -2,7 +2,7 @@ aiogram
 beautifulsoup4
 cryptography
 docutils
-psycopg2
+psycopg2-binary
 environs
 exceptiongroup
 flask-caching

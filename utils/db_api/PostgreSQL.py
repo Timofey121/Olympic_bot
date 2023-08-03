@@ -26,7 +26,7 @@ async def add_user(telegram_id, full_name, blocked, data_registration):
 
 async def select_all_users():
     main()
-    cur.execute(f"SELECT * FROM olympic_registrationtelegram WHERE blocked=1")
+    cur.execute(f"SELECT * FROM olympic_registrationtelegram WHERE blocked=False")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -75,7 +75,7 @@ async def add_token(telegram_id, token):
 
 async def count_users():
     main()
-    cur.execute(f"SELECT COUNT(*) FROM olympic_registrationtelegram WHERE blocked=0")
+    cur.execute(f"SELECT COUNT(*) FROM olympic_registrationtelegram WHERE blocked=False")
     rows = cur.fetchall()
     con.close()
     return rows
@@ -130,7 +130,7 @@ async def update_blocked_users(telegram_id, blocked):
 
 async def select_blocked_users():
     main()
-    cur.execute(f"SELECT * FROM olympic_registrationtelegram WHERE blocked=0")
+    cur.execute(f"SELECT * FROM olympic_registrationtelegram WHERE blocked=True")
     rows = cur.fetchall()
     con.close()
     return rows
