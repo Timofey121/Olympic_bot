@@ -47,5 +47,8 @@ inline_buttons_lessons_delete_notification = InlineKeyboardMarkup(
             InlineKeyboardButton(text="Черчение", callback_data='УдалУвеПредмет-Черчение'),
             InlineKeyboardButton(text="Психология", callback_data='УдалУвеПредмет-Психология'),
         ],
+        [
+            InlineKeyboardButton(text="⬅️ Назад в меню", callback_data='⬅️ Назад в меню'),
+        ],
     ],
 )

@@ -47,5 +47,8 @@ inline_buttons_lessons_notification = InlineKeyboardMarkup(
             InlineKeyboardButton(text="Черчение", callback_data='УведомПредмет-Черчение'),
             InlineKeyboardButton(text="Психология", callback_data='УведомПредмет-Психология'),
         ],
+        [
+            InlineKeyboardButton(text="⬅️ Назад в меню", callback_data='⬅️ Назад в меню'),
+        ],
     ],
 )

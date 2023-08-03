@@ -9,6 +9,10 @@ inline_buttons_delete = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(text="Удалить выбранные уведомления(по номеру)!",
                                  callback_data='Удалить-уведомления-номер')
+        ],
+        [
+            InlineKeyboardButton(text="⬅️ Назад в меню",
+                                 callback_data='⬅️ Назад в меню')
         ]
     ],
     resize_keyboard=True  # размер кнопки(не огромный)

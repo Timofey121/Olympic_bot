@@ -8,6 +8,10 @@ inline_buttons_choose_notification = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(text="Подключить к олимпиадам, входящим в РСОШ!",
                                  callback_data="Уведомления-Вывести-РСОШ")
+        ],
+        [
+            InlineKeyboardButton(text="⬅️ Назад в меню",
+                                 callback_data="⬅️ Назад в меню")
         ]
     ],
     resize_keyboard=True  # размер кнопки(не огромный)

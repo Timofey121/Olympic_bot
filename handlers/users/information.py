@@ -3,8 +3,10 @@ import datetime
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.markdown import hbold, hunderline, hlink
 
+from keyboards.default.buttons_menu import main_keyboard
 from keyboards.inline.all_or_choice import inline_buttons_choose
 from keyboards.inline.buttons_lessons import inline_buttons_lessons
 from loader import dp
@@ -15,10 +17,17 @@ from utils.db_api.PostgreSQL import subscriber_exists, information_about_olympia
 @dp.message_handler(text='✍️ Вывести информацию о нужной олимпиаде')
 async def info(message: types.Message):
     if int(list(await subscriber_exists(message.from_user.id))[0][-1]) != 1:
+        await message.answer(f"Привет, Olympic на связи, сейчас я тебе со всем помогу.",
+                             reply_markup=ReplyKeyboardRemove())
         await message.answer(
             f"{hbold('Выберите предмет')} интересующих Вас олимпиады!", reply_markup=inline_buttons_lessons)
     else:
         await message.answer(f"К сожалению, Вы ЗАБЛОКИРОВАНЫ! Для уточнения причины напишите @Timofey1566")
+
+
+@dp.callback_query_handler(text_startswith="⬅️ Назад в меню")
+async def deal_1(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer('Вы вернулись в меню', reply_markup=main_keyboard)
 
 
 @dp.callback_query_handler(text_startswith="ИнфорПредмет-")
@@ -89,12 +98,8 @@ async def info_2(callback: types.CallbackQuery, state: FSMContext):
                 flag = True
                 await callback.message.answer(f"{count}) {information_olimpiads[k]}")
 
-    if flag is False:
-        if count_1 == 0:
-            await callback.message.answer(
-                'К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
-        else:
-            await callback.message.answer('К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
+    if len(name_olimpiads) == 0:
+        await callback.message.answer('К сожалению, все олимпиды по этому предмету в этом учебном году прошли!')
     else:
         await callback.message.answer(
             hbold("Олимпиады упрощают поступление в ВУЗ! Они позволяют "

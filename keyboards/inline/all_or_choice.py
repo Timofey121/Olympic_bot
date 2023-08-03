@@ -7,6 +7,9 @@ inline_buttons_choose = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(text="Вывести олимпиады, входящие в РСОШ!", callback_data="Информация-Вывести-РСОШ")
+        ],
+        [
+            InlineKeyboardButton(text="⬅️ Назад в меню", callback_data="⬅️ Назад в меню")
         ]
     ],
     resize_keyboard=True  # размер кнопки(не огромный)

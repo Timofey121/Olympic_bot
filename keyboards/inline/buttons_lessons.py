@@ -47,5 +47,8 @@ inline_buttons_lessons = InlineKeyboardMarkup(
             InlineKeyboardButton(text="Черчение", callback_data='ИнфорПредмет-Черчение'),
             InlineKeyboardButton(text="Психология", callback_data='ИнфорПредмет-Психология'),
         ],
+        [
+            InlineKeyboardButton(text="⬅️ Назад в меню", callback_data='⬅️ Назад в меню'),
+        ],
     ],
 )
