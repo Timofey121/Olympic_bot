@@ -7,7 +7,7 @@
   <br>
 </h1>
 
-## Telegram бот является дополнением к сайту репозиторий, который можно найти:  <a href="https://github.com/Timofey121/SiteForOlimpic">тут</a>
+## Telegram бот является дополнением к сайту репозиторий, которого можно найти:  <a href="https://github.com/Timofey121/SiteForOlimpic">тут</a>
 
 
 ## О проекте
